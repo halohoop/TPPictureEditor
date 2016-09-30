@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="253px" height="58px" viewBox="0 0 253 58" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 40 (33762) - http://www.bohemiancoding.com/sketch -->
+    <title>粗细调节</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <polygon id="path-1" points="225.66 28.9254 225.66 0.331 0 0.331 0 29 225.66 29 225.66 28.9254 225.6601 0.4054 0.0001 0.4054 0.0001 28.9254 225.66 28.9254"></polygon>
+        <polygon id="path-3" points="29.5178 0.331 0.8488 0.331 0.8488 28.9996 29.5178 28.9996 29.5178 0.331"></polygon>
+    </defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="粗细调节">
+            <g id="Page-1" transform="translate(14.000000, 14.000000)">
+                <g id="Group-3" transform="translate(0.000000, 0.669100)">
+                    <mask id="mask-2" fill="white">
+                        <use xlink:href="#path-1"></use>
+                    </mask>
+                    <g id="Clip-2" opacity="0.1"></g>
+                    <path d="M211.4001,28.9254 L14.2601,28.9254 C6.4171,28.9254 0.0001,22.5084 0.0001,14.6654 L0.0001,14.6654 C0.0001,6.8224 6.4171,0.4054 14.2601,0.4054 L211.4001,0.4054 C219.2431,0.4054 225.6601,6.8224 225.6601,14.6654 L225.6601,14.6654 C225.6601,22.5084 219.2431,28.9254 211.4001,28.9254" id="Fill-1" fill="#FFFFFF" mask="url(#mask-2)"></path>
+                </g>
+                <path d="M225.66,15.3345 C225.66,19.2545 224.05,22.8245 221.47,25.4045 C218.89,27.9945 215.32,29.5945 211.4,29.5945 L27.01,17.1545 L2.15,15.4845 L2.15,15.1845 L27.01,13.5145 L211.4,1.0745 C219.24,1.0745 225.66,7.4945 225.66,15.3345" id="Fill-4" fill="#FFFFFF" opacity="0.3"></path>
+                <g id="Group-8" transform="translate(61.000000, 0.669100)">
+                    <mask id="mask-4" fill="white">
+                        <use xlink:href="#path-3"></use>
+                    </mask>
+                    <g id="Clip-7"></g>
+                    <path d="M29.5178,14.6596 C29.5178,15.3706 29.4608,16.0706 29.3688,16.7476 C28.3478,23.6766 22.3818,28.9996 15.1778,28.9996 C7.3188,28.9996 0.9408,22.6676 0.8488,14.8316 L0.8488,14.4876 C0.9408,6.6516 7.3188,0.3306 15.1778,0.3306 C22.3818,0.3306 28.3478,5.6426 29.3688,12.5716 C29.4608,13.2486 29.5178,13.9486 29.5178,14.6596" id="Fill-6" fill="#FFFFFF" mask="url(#mask-4)"></path>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

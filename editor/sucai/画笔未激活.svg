@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="114px" height="58px" viewBox="0 0 114 58" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 40 (33762) - http://www.bohemiancoding.com/sketch -->
+    <title>画笔未激活</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <polygon id="path-1" points="43.145 37.4467 43.145 0.8867 0.3742 0.8867 0.3742 37.4467 43.145 37.4467"></polygon>
+    </defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="画笔未激活">
+            <g id="Page-1" transform="translate(41.000000, 9.000000)">
+                <polygon id="Fill-1" fill="#C8C9CA" points="30.332 30.297 33.832 30.297 33.832 9.537 30.332 9.537"></polygon>
+                <g id="Group-7" transform="translate(0.000000, 0.750000)">
+                    <g id="Group-4" transform="translate(30.000000, 0.000000)">
+                        <mask id="mask-2" fill="white">
+                            <use xlink:href="#path-1"></use>
+                        </mask>
+                        <g id="Clip-3"></g>
+                        <path d="M28.4142,0.8867 C24.3742,0.8867 20.3942,1.5867 16.5942,2.9467 L0.3742,8.7867 L0.3742,12.5067 L17.7742,6.2467 C21.2042,5.0167 24.7742,4.3867 28.4142,4.3867 L79.9342,4.3867 L79.9342,33.9467 L28.4042,33.9467 C24.7742,33.9467 21.2042,33.3167 17.7942,32.0967 L0.3742,25.8267 L0.3742,29.5467 L16.6042,35.3867 C20.3942,36.7467 24.3642,37.4467 28.4042,37.4467 L83.4342,37.4467 L83.4342,0.8867 L28.4142,0.8867 Z" id="Fill-2" fill="#C8C9CA" mask="url(#mask-2)"></path>
+                    </g>
+                    <polygon id="Fill-5" fill="#C8C9CA" points="27.0241 9.4467 27.0241 28.8767 0.0141 19.1667"></polygon>
+                </g>
+                <path d="M32.2075,10.5 L56.0405,3.167 L73.1445,3.167 L73.1445,36.667 L60.7075,36.667 C60.7075,36.667 47.2075,34.987 46.5405,34.91 C45.8745,34.833 32.2075,29.167 32.2075,29.167 L32.2075,10.5 Z" id="Fill-8" fill="#C8C9CA"></path>
+            </g>
+        </g>
+    </g>
+</svg>

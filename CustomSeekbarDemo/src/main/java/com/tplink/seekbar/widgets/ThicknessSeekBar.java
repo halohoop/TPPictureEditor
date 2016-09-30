@@ -17,6 +17,7 @@ import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.PaintFlagsDrawFilter;
 import android.graphics.Path;
 import android.graphics.Region;
 import android.util.AttributeSet;
@@ -79,6 +80,8 @@ public class ThicknessSeekBar extends SeekBar {
     protected synchronized void onDraw(Canvas canvas) {
         canvas.save();
         mPath.reset();
+        canvas.setDrawFilter(new PaintFlagsDrawFilter(0, Paint.ANTI_ALIAS_FLAG | Paint.FILTER_BITMAP_FLAG));
+        mPaint.setAntiAlias(true);
         mPath.moveTo(0, mMeasuredHeight / 2);
         mPath.lineTo(mMeasuredWidth - mRadius, 0);
         mPath.lineTo(mMeasuredWidth - mRadius, mMeasuredHeight);

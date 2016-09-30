@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="48px" height="48px" viewBox="0 0 48 48" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 40 (33762) - http://www.bohemiancoding.com/sketch -->
+    <title>分享</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="分享">
+            <g id="Page-1" transform="translate(5.000000, 3.000000)">
+                <path d="M12.6008,20.46 C12.6008,23.923 9.7938,26.73 6.3308,26.73 C2.8678,26.73 0.0598,23.923 0.0598,20.46 C0.0598,16.997 2.8678,14.19 6.3308,14.19 C9.7938,14.19 12.6008,16.997 12.6008,20.46" id="Fill-1" fill="#FFFFFF"></path>
+                <path d="M38.1619,6.3594 C38.1619,9.8224 35.3549,12.6294 31.8919,12.6294 C28.4289,12.6294 25.6219,9.8224 25.6219,6.3594 C25.6219,2.8964 28.4289,0.0894 31.8919,0.0894 C35.3549,0.0894 38.1619,2.8964 38.1619,6.3594" id="Fill-3" fill="#FFFFFF"></path>
+                <path d="M38.1619,35.6406 C38.1619,39.1036 35.3549,41.9106 31.8919,41.9106 C28.4289,41.9106 25.6219,39.1036 25.6219,35.6406 C25.6219,32.1776 28.4289,29.3706 31.8919,29.3706 C35.3549,29.3706 38.1619,32.1776 38.1619,35.6406" id="Fill-5" fill="#FFFFFF"></path>
+                <path d="M31.8916,6.3594 L6.3306,20.4604" id="Stroke-7" stroke="#FFFFFF" stroke-width="4"></path>
+                <path d="M6.3306,20.46 L31.8916,35.641" id="Stroke-9" stroke="#FFFFFF" stroke-width="4"></path>
+            </g>
+        </g>
+    </g>
+</svg>

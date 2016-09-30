@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="98px" height="98px" viewBox="0 0 98 98" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 40 (33762) - http://www.bohemiancoding.com/sketch -->
+    <title>添加文本</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <polygon id="path-1" points="5.42101086e-20 0.1497 5.42101086e-20 81.9997 81.8506 81.9997 81.8506 0.1497 0 0.1497"></polygon>
+    </defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="添加文本">
+            <g id="Page-1" transform="translate(8.000000, 7.000000)">
+                <g id="Group-3" opacity="0.1" transform="translate(0.000000, 0.850600)">
+                    <mask id="mask-2" fill="white">
+                        <use xlink:href="#path-1"></use>
+                    </mask>
+                    <g id="Clip-2"></g>
+                    <path d="M81.8506,41.0747 C81.8506,63.6767 63.5276,81.9997 40.9256,81.9997 C18.3226,81.9997 -0.0004,63.6767 -0.0004,41.0747 C-0.0004,18.4727 18.3226,0.1497 40.9256,0.1497 C63.5276,0.1497 81.8506,18.4727 81.8506,41.0747" id="Fill-1" fill="#FFFFFF" mask="url(#mask-2)"></path>
+                </g>
+                <path d="M19.1698,41.9253 L62.6808,41.9253" id="Stroke-4" stroke="#FFFFFF" stroke-width="3.5"></path>
+                <path d="M40.9253,63.6808 L40.9253,20.1698" id="Stroke-5" stroke="#FFFFFF" stroke-width="3.5"></path>
+            </g>
+        </g>
+    </g>
+</svg>

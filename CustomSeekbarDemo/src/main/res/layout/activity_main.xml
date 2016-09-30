@@ -20,6 +20,8 @@
             android:layout_width="0dp"
             android:layout_height="12dp"
             android:layout_weight="1"
+            android:paddingLeft="11dp"
+            android:paddingRight="11dp"
             android:thumb="@drawable/thickness_ajust"
             app:ProgressColor="#f00"/>
 
@@ -28,6 +30,8 @@
             android:layout_width="0dp"
             android:layout_height="12dp"
             android:layout_weight="1"
+            android:paddingLeft="11dp"
+            android:paddingRight="11dp"
             android:thumb="@drawable/alpha_ajust"
             app:ProgressColor="#f00"/>
     </LinearLayout>

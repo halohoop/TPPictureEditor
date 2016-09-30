@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="48px" height="48px" viewBox="0 0 48 48" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 40 (33762) - http://www.bohemiancoding.com/sketch -->
+    <title>画笔</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="画笔">
+            <g id="Page-1" transform="translate(2.000000, 5.000000)">
+                <polygon id="Fill-1" fill="#FFFFFF" points="2.6223 29.0275 8.7823 35.1515 0.2733 37.5635"></polygon>
+                <g id="Group-6" transform="translate(4.000000, 0.000000)">
+                    <path d="M32.469,7.2994 L6.311,33.6144 L0.15,27.4904 L26.309,1.1754 C27.284,0.1944 28.87,0.1904 29.851,1.1654 L32.458,3.7574 C33.439,4.7324 33.444,6.3184 32.469,7.2994" id="Fill-2" fill="#FFFFFF"></path>
+                    <path d="M13.6865,35.9403 L39.7275,35.9403" id="Stroke-4" stroke="#FFFFFF" stroke-width="4"></path>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="48px" height="48px" viewBox="0 0 48 48" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 40 (33762) - http://www.bohemiancoding.com/sketch -->
+    <title>图形</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="图形" fill="#FFFFFF">
+            <g id="Page-1" transform="translate(4.000000, 4.000000)">
+                <path d="M28.795,23.7949 L15.815,23.7949 L15.815,11.5249 C22.535,11.9849 27.965,17.1849 28.795,23.7949" id="Fill-1"></path>
+                <path d="M39.255,0.355 L39.255,23.795 L32.315,23.795 C31.465,15.255 24.465,8.495 15.815,8.015 L15.815,0.355 L39.255,0.355 Z" id="Fill-3"></path>
+                <path d="M28.905,25.5649 C28.905,33.3349 22.595,39.6449 14.825,39.6449 C7.065,39.6449 0.745,33.3349 0.745,25.5649 C0.745,17.8049 7.065,11.4849 14.825,11.4849 C15.155,11.4849 15.485,11.4949 15.815,11.5249 C22.535,11.9849 27.965,17.1849 28.795,23.7949 C28.865,24.3749 28.905,24.9649 28.905,25.5649" id="Fill-5"></path>
+            </g>
+        </g>
+    </g>
+</svg>

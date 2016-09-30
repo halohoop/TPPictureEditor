@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="58px" height="58px" viewBox="0 0 58 58" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 40 (33762) - http://www.bohemiancoding.com/sketch -->
+    <title>颜色</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <polygon id="path-1" points="0 0.0003 0 52.3483 52.3488 52.3483 52.3488 0.0003 1.35525272e-20 0.0003"></polygon>
+    </defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="颜色">
+            <g id="Page-1" transform="translate(3.000000, 3.000000)">
+                <mask id="mask-2" fill="white">
+                    <use xlink:href="#path-1"></use>
+                </mask>
+                <g id="Clip-2"></g>
+                <path d="M52.3488,26.1743 C52.3488,40.6303 40.6298,52.3483 26.1748,52.3483 C11.7188,52.3483 -0.0002,40.6303 -0.0002,26.1743 C-0.0002,11.7183 11.7188,0.0003 26.1748,0.0003 C40.6298,0.0003 52.3488,11.7183 52.3488,26.1743" id="Fill-1" fill="#FF2968" mask="url(#mask-2)"></path>
+            </g>
+        </g>
+    </g>
+</svg>
