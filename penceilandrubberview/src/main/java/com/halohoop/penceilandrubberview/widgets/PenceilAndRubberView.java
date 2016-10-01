@@ -115,7 +115,7 @@ public class PenceilAndRubberView extends View {
         return max;
     }
 
-    enum MODE {
+    public enum MODE {
         PENCEILON, RUBBERON
     }
 
@@ -158,6 +158,17 @@ public class PenceilAndRubberView extends View {
                 break;
         }
         return true;
+    }
+
+    public interface PenceilOrRubberModeCallBack {
+        void onModeSelected(MODE mode);
+    }
+
+    private PenceilOrRubberModeCallBack mPenceilOrRubberModeCallBack;
+
+    public void setPenceilOrRubberModeCallBack(
+            PenceilOrRubberModeCallBack penceilOrRubberModeCallBack) {
+        this.mPenceilOrRubberModeCallBack = penceilOrRubberModeCallBack;
     }
 
     private boolean mIsAnimationEnd = true;
@@ -220,6 +231,9 @@ public class PenceilAndRubberView extends View {
                     mIsAnimationEnd = true;
                     mMode = MODE.RUBBERON;
                     invalidate();//final state update
+                    if (mPenceilOrRubberModeCallBack != null) {
+                        mPenceilOrRubberModeCallBack.onModeSelected(mMode);
+                    }
                 }
             });
         }
