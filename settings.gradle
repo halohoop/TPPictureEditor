@@ -1,2 +1,2 @@
-include ':app', ':animationdemo', ':CustomSeekbarDemo', ':editor'
+include ':app', ':animationdemo', ':CustomSeekbarDemo', ':editor', ':penceilandrubberview'
 include ':mosaicImageView'

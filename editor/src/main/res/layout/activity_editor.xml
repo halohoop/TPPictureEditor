@@ -1,13 +1,84 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.android.systemui.screenshot.editutils.pages.EditorActivity">
 
-    <TextView
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#8e8e8e"
+        android:orientation="vertical">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+
+            <ImageView
+                android:id="@+id/iv_cancel"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_alignParentLeft="true"
+                android:layout_marginLeft="5dp"
+                android:padding="10dp"
+                android:src="@drawable/cancel" />
+
+            <ImageView
+                android:id="@+id/iv_save"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_alignParentRight="true"
+                android:layout_marginRight="5dp"
+                android:padding="10dp"
+                android:src="@drawable/save" />
+
+            <ImageView
+                android:id="@+id/iv_stepforward"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_toLeftOf="@id/iv_save"
+                android:padding="10dp"
+                android:src="@drawable/stepforward" />
+
+            <ImageView
+                android:id="@+id/iv_stepbackward"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_toLeftOf="@id/iv_stepforward"
+                android:padding="10dp"
+                android:src="@drawable/stepback" />
+
+
+        </RelativeLayout>
+
+        <com.android.systemui.screenshot.editutils.widgets.MarkableImageView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginLeft="50dp"
+            android:layout_marginRight="50dp"
+            android:layout_weight="8"
+            android:background="#0f0"
+            android:scaleType="centerInside"
+            android:src="@mipmap/ic_launcher" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+
+        </LinearLayout>
+    </LinearLayout>
+
+    <com.halohoop.penceilandrubberview.widgets.PenceilAndRubberView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hello World!"/>
-</RelativeLayout>
+        android:layout_gravity="bottom|right"
+        android:layout_marginBottom="100dp"
+        app:ResPenceilOff="@mipmap/penceiloff"
+        app:ResPenceilOn="@mipmap/penceilon"
+        app:ResRubberOff="@mipmap/rubberoff"
+        app:ResRubberOn="@mipmap/rubberon"></com.halohoop.penceilandrubberview.widgets.PenceilAndRubberView>
+</FrameLayout>

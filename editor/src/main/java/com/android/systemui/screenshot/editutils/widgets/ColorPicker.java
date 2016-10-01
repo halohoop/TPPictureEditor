@@ -57,7 +57,7 @@ public class ColorPicker extends View {
         //init the default colors
         setColors();
         mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        mTickBitmap = BitmapFactory.decodeResource(mContext.getResources(), R.drawable.tick);
+        mTickBitmap = BitmapFactory.decodeResource(mContext.getResources(), R.drawable.save);
 
     }
 
