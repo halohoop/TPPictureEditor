@@ -55,11 +55,12 @@
         </RelativeLayout>
 
         <com.android.systemui.screenshot.editutils.widgets.MarkableImageView
+            android:id="@+id/markableimageview"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_marginLeft="50dp"
             android:layout_marginRight="50dp"
-            android:layout_weight="8"
+            android:layout_weight="12"
             android:background="#0f0"
             android:scaleType="centerInside"
             android:src="@mipmap/ic_launcher" />
@@ -67,18 +68,49 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1">
+            android:layout_weight="2"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
+            <com.android.systemui.screenshot.editutils.widgets.ThicknessSeekBar
+                android:id="@+id/tsb"
+                android:layout_width="0dp"
+                android:layout_height="12dp"
+                android:layout_marginLeft="10dp"
+                android:layout_weight="1"
+                android:paddingLeft="11dp"
+                android:paddingRight="11dp"
+                android:thumb="@drawable/thickness_ajust"
+                app:ProgressColor="#f00" />
+
+            <com.android.systemui.screenshot.editutils.widgets.AlphaSeekBar
+                android:id="@+id/asb"
+                android:layout_width="0dp"
+                android:layout_height="12dp"
+                android:layout_marginLeft="10dp"
+                android:layout_weight="1"
+                android:paddingLeft="11dp"
+                android:paddingRight="11dp"
+                android:thumb="@drawable/alpha_ajust"
+                app:ProgressColor="#f00" />
         </LinearLayout>
+
+
+        <com.android.systemui.screenshot.editutils.widgets.ActionsChooseView
+            android:id="@+id/actions_choose_view"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"></com.android.systemui.screenshot.editutils.widgets.ActionsChooseView>
     </LinearLayout>
 
-    <com.halohoop.penceilandrubberview.widgets.PenceilAndRubberView
+    <com.android.systemui.screenshot.editutils.widgets.PenceilAndRubberView
+        android:id="@+id/penceil_and_rubber_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|right"
-        android:layout_marginBottom="100dp"
+        android:layout_marginBottom="120dp"
         app:ResPenceilOff="@mipmap/penceiloff"
         app:ResPenceilOn="@mipmap/penceilon"
         app:ResRubberOff="@mipmap/rubberoff"
-        app:ResRubberOn="@mipmap/rubberon"></com.halohoop.penceilandrubberview.widgets.PenceilAndRubberView>
+        app:ResRubberOn="@mipmap/rubberon"></com.android.systemui.screenshot.editutils.widgets.PenceilAndRubberView>
 </FrameLayout>

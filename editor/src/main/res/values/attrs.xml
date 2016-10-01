@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="PenceilAndRubberView">
+        <attr name="ResPenceilOn" format="reference"></attr>
+        <attr name="ResRubberOn" format="reference"></attr>
+        <attr name="ResPenceilOff" format="reference"></attr>
+        <attr name="ResRubberOff" format="reference"></attr>
+    </declare-styleable>
+    <declare-styleable name="SeekBar">
+        <attr name="ProgressColor" format="color"></attr>
+    </declare-styleable>
+</resources>

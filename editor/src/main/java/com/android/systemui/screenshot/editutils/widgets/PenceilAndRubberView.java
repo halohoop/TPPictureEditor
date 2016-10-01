@@ -10,7 +10,7 @@
  * Ver 1.0, 2016-09-30, huanghaiqi, Create file.
  */
 
-package com.halohoop.penceilandrubberview.widgets;
+package com.android.systemui.screenshot.editutils.widgets;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -25,7 +25,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.AnticipateOvershootInterpolator;
 
-import com.halohoop.penceilandrubberview.R;
+import com.android.systemui.screenshot.editutils.pages.R;
 
 public class PenceilAndRubberView extends View {
 
