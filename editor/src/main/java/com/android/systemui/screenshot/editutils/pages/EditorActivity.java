@@ -3,8 +3,11 @@ package com.android.systemui.screenshot.editutils.pages;
 import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.view.Window;
 
+import com.android.systemui.screenshot.editutils.presenters.IEditorActivityPresenter;
+import com.android.systemui.screenshot.editutils.presenters.IEditorActivityPresenterImpls;
 import com.android.systemui.screenshot.editutils.widgets.ActionsChooseView;
 import com.android.systemui.screenshot.editutils.widgets.MarkableImageView;
 import com.android.systemui.screenshot.editutils.widgets.PenceilAndRubberView;
@@ -16,6 +19,7 @@ public class EditorActivity extends Activity implements
     private MarkableImageView mMarkableimageview;
     private PenceilAndRubberView mPenceilAndRubberView;
     private ActionsChooseView mActionsChooseView;
+    private IEditorActivityPresenter mIEditorActivityPresenter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,6 +32,9 @@ public class EditorActivity extends Activity implements
         mActionsChooseView.setOnSelectedListener(this);
         mMarkableimageview.enterEditMode();
         mPenceilAndRubberView.setPenceilOrRubberModeCallBack(this);
+        mIEditorActivityPresenter = new IEditorActivityPresenterImpls();
+        mIEditorActivityPresenter.needAnimationEndToAct(mPenceilAndRubberView);
+        mActionsChooseView.setAnimationEndMarkHelper(mIEditorActivityPresenter);
     }
 
     @Override
@@ -37,12 +44,16 @@ public class EditorActivity extends Activity implements
 
         } else if (mode == PenceilAndRubberView.MODE.RUBBERON) {
             Log.i("aaa", "aaa" + "RUBBERON");
-
         }
     }
 
     @Override
-    public void onSelected(int index) {
+    public void onActionSelected(final int index) {
         Log.i("aaa", "aaa" + index);
+        if (index != 0) {
+            mPenceilAndRubberView.setVisibility(View.GONE);
+        } else {
+            mPenceilAndRubberView.setVisibility(View.VISIBLE);
+        }
     }
 }

@@ -14,20 +14,26 @@ package com.android.systemui.screenshot.editutils.widgets;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.animation.AnimatorSet;
 import android.animation.ValueAnimator;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
+import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.util.AttributeSet;
+import android.view.Display;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.animation.AnticipateOvershootInterpolator;
 
 import com.android.systemui.screenshot.editutils.pages.R;
 
-public class PenceilAndRubberView extends View {
+public class PenceilAndRubberView extends View implements AnimationEndMark {
 
     private Drawable mDrawableRubberOn;
     private Drawable mDrawablePenceilOn;
@@ -43,6 +49,8 @@ public class PenceilAndRubberView extends View {
     private Rect mBottomRect;
     private int mPositionOffset;
     private int mAnimationOffset;
+    private int mScreenWidth;
+    private int ANIMATION_DURATION = 200;
 
     public PenceilAndRubberView(Context context) {
         this(context, null);
@@ -70,6 +78,24 @@ public class PenceilAndRubberView extends View {
         mTwoPicturePadding = 0;
         mPositionOffset = 40;
         mAnimationOffset = 30;
+        Point screenSize = getScreenSize(context);
+        mScreenWidth = screenSize.x;
+    }
+
+    @SuppressLint("NewApi")//getSize(方法)需要 api13才能使用
+    public static Point getScreenSize(Context context) {
+        WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+        Display display = wm.getDefaultDisplay();
+        Point out = new Point();
+        //Build.VERSION_CODES.HONEYCOMB_MR2 → 13
+        if (Build.VERSION.SDK_INT >= 13) {
+            display.getSize(out);
+        } else {
+            int width = display.getWidth();
+            int height = display.getHeight();
+            out.set(width, height);
+        }
+        return out;
     }
 
     @Override
@@ -86,7 +112,7 @@ public class PenceilAndRubberView extends View {
         mWidth = getTheMaxOne(intrinsicWidthPenceilOn, intrinsicWidthPenceilOff,
                 intrinsicWidthRubberOn, intrinsicWidthRubberOff);
         mHeight = getTheMaxOne(intrinsicHeightPenceilOn, intrinsicHeightPenceilOff,
-                intrinsicHeightRubberOn, intrinsicHeightRubberOff) * 2 + 10;
+                intrinsicHeightRubberOn, intrinsicHeightRubberOff) * 2 + mTwoPicturePadding;
         mHalfHeight = mHeight / 2;
         setMeasuredDimension(mWidth, mHeight);
         initRects();
@@ -115,23 +141,31 @@ public class PenceilAndRubberView extends View {
         return max;
     }
 
+    @Override
+    public boolean isAnimationEnd() {
+        return mIsAnimationEnd;
+    }
+
     public enum MODE {
         PENCEILON, RUBBERON
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
+        canvas.save();
+        canvas.translate(mCanvasShouldTranX, 0);
         if (mMode == MODE.PENCEILON) {
             mDrawablePenceilOn.setBounds(mTopRect);
             mDrawableRubberOff.setBounds(mBottomRect);
             mDrawablePenceilOn.draw(canvas);
             mDrawableRubberOff.draw(canvas);
-        } else {
+        } else if (mMode == MODE.RUBBERON) {
             mDrawablePenceilOff.setBounds(mTopRect);
             mDrawableRubberOn.setBounds(mBottomRect);
             mDrawablePenceilOff.draw(canvas);
             mDrawableRubberOn.draw(canvas);
         }
+        canvas.restore();
     }
 
     @Override
@@ -176,7 +210,7 @@ public class PenceilAndRubberView extends View {
     private void changeMode(MODE modeToChangeTo) {
         ValueAnimator valueAnimator = ValueAnimator.ofInt(0,
                 mAnimationOffset)
-                .setDuration(500);
+                .setDuration(ANIMATION_DURATION);
         //mark current value
         final int currentTopLeft = mTopRect.left;
         final int currentTopRight = mTopRect.right;
@@ -241,5 +275,145 @@ public class PenceilAndRubberView extends View {
             });
         }
         valueAnimator.start();
+    }
+
+
+    @Override
+    public void setVisibility(final int visibility) {
+        if (visibility != View.VISIBLE && getVisibility() == View.VISIBLE) {
+            post(new Runnable() {
+                @Override
+                public void run() {
+                    //to do animator to hide
+                    doAnimatorToHide(visibility);//maybe invisible or gone
+                }
+
+            });
+        } else if (visibility == View.VISIBLE && getVisibility() != View.VISIBLE) {
+            post(new Runnable() {
+                @Override
+                public void run() {
+                    //to do animator to show
+                    doAnimatorToShow();//just visible
+                }
+            });
+        }
+    }
+
+
+    private int mCanvasShouldTranX = 0;
+
+    private void doAnimatorToShow() {
+        AnimatorSet finalAs = new AnimatorSet();
+        AnimatorSet as = new AnimatorSet();
+
+        ValueAnimator canvasTransXAnimator = ValueAnimator.ofInt(mWidth, 0).setDuration(ANIMATION_DURATION);
+        canvasTransXAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                int animatedValue = (int) animation.getAnimatedValue();
+                mCanvasShouldTranX = animatedValue;
+            }
+        });
+
+        int leftAndRightTopDistance = Math.abs(mTopRect.right - mTopRect.left);
+        final int lastTopLeft = mTopRect.left;
+        final int lastTopRight = mTopRect.right;
+        ValueAnimator valueAnimatorTop
+                = ValueAnimator.ofInt(0, leftAndRightTopDistance).setDuration(ANIMATION_DURATION);
+        valueAnimatorTop.setInterpolator(new AnticipateOvershootInterpolator());
+        valueAnimatorTop.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                int animatedValue = (int) animation.getAnimatedValue();
+                mTopRect.left = lastTopLeft - animatedValue;
+                mTopRect.right = lastTopRight - animatedValue;
+                invalidate();
+            }
+        });
+
+        int leftAndRightBottomDistance = Math.abs(mBottomRect.right - mBottomRect.left);
+        final int lastBottomLeft = mBottomRect.left;
+        final int lastBottomRight = mBottomRect.right;
+        ValueAnimator valueAnimatorBottom
+                = ValueAnimator.ofInt(0, leftAndRightBottomDistance).setDuration(ANIMATION_DURATION);
+        valueAnimatorBottom.setInterpolator(new AnticipateOvershootInterpolator());
+        valueAnimatorBottom.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                int animatedValue = (int) animation.getAnimatedValue();
+                mBottomRect.left = lastBottomLeft - animatedValue;
+                mBottomRect.right = lastBottomRight - animatedValue;
+                mTopRect.left = lastTopLeft;
+                mTopRect.right = lastTopRight;
+                invalidate();
+            }
+        });
+        as.playSequentially(valueAnimatorBottom, valueAnimatorTop);
+        finalAs.playTogether(canvasTransXAnimator, as);
+        finalAs.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+                mIsAnimationEnd = false;
+                PenceilAndRubberView.super.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                mIsAnimationEnd = true;
+                invalidate();
+            }
+        });
+        finalAs.start();
+    }
+
+    private void doAnimatorToHide(final int visibility) {
+        AnimatorSet as = new AnimatorSet();
+        int leftAndRightTopDistance = Math.abs(mTopRect.right - mTopRect.left);
+        final int lastTopLeft = mTopRect.left;
+        final int lastTopRight = mTopRect.right;
+        ValueAnimator valueAnimatorTop
+                = ValueAnimator.ofInt(0, leftAndRightTopDistance).setDuration(ANIMATION_DURATION);
+        valueAnimatorTop.setInterpolator(new AnticipateOvershootInterpolator());
+        valueAnimatorTop.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                int animatedValue = (int) animation.getAnimatedValue();
+                mTopRect.left = lastTopLeft + animatedValue;
+                mTopRect.right = lastTopRight + animatedValue;
+                invalidate();
+            }
+        });
+
+        int leftAndRightBottomDistance = Math.abs(mBottomRect.right - mBottomRect.left);
+        final int lastBottomLeft = mBottomRect.left;
+        final int lastBottomRight = mBottomRect.right;
+        ValueAnimator valueAnimatorBottom
+                = ValueAnimator.ofInt(0, leftAndRightBottomDistance).setDuration(ANIMATION_DURATION);
+        valueAnimatorBottom.setInterpolator(new AnticipateOvershootInterpolator());
+        valueAnimatorBottom.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                int animatedValue = (int) animation.getAnimatedValue();
+                mBottomRect.left = lastBottomLeft + animatedValue;
+                mBottomRect.right = lastBottomRight + animatedValue;
+                invalidate();
+            }
+        });
+        as.playSequentially(valueAnimatorTop, valueAnimatorBottom);
+        as.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+                mIsAnimationEnd = false;
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                mIsAnimationEnd = true;
+                PenceilAndRubberView.super.setVisibility(visibility);
+                invalidate();
+            }
+        });
+        as.start();
     }
 }
