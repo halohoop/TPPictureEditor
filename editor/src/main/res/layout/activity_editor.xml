@@ -74,6 +74,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:background="#1C1C1C"
                 android:gravity="center_vertical"
                 android:orientation="horizontal">
 
@@ -104,6 +105,26 @@
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="#1C1C1C"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <com.android.systemui.screenshot.editutils.widgets.ShapesChooseView
+                    android:id="@+id/shapes_choose_view"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="7"></com.android.systemui.screenshot.editutils.widgets.ShapesChooseView>
+
+                <com.android.systemui.screenshot.editutils.widgets.ColorShowView
+                    android:id="@+id/color_show_view_in_shapes_group"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="2" />
             </LinearLayout>
 
             <com.android.systemui.screenshot.editutils.widgets.ColorPickerView

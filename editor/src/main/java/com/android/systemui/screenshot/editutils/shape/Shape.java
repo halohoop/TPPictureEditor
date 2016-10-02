@@ -25,10 +25,14 @@ public class Shape {
     protected Mode mMode = Mode.EDITING;
     protected TouchableArea mTouchableArea;
     protected PointF[] mPoints;
-    protected ShapeType mShapeType = ShapeType.ARROW;
+    protected ShapeType mShapeType = ShapeType.LINE;
 
     public Shape(ShapeType shapeType) {
         switch (shapeType) {
+            case LINE:
+                this.mPoints = new PointF[2];
+                this.mShapeType = ShapeType.LINE;
+                break;
             case ARROW:
                 this.mPoints = new PointF[5];
                 this.mShapeType = ShapeType.ARROW;
@@ -37,9 +41,9 @@ public class Shape {
                 this.mPoints = new PointF[2];
                 this.mShapeType = ShapeType.CIRCLE;
                 break;
-            case RECTANGLE:
+            case ROUNDRECT:
                 this.mPoints = new PointF[4];
-                this.mShapeType = ShapeType.RECTANGLE;
+                this.mShapeType = ShapeType.ROUNDRECT;
                 break;
             default:
                 throw new IllegalArgumentException("please choose a right enum value from the " +
@@ -55,7 +59,7 @@ public class Shape {
     }
 
     public enum ShapeType {
-        ARROW, CIRCLE, RECTANGLE
+        LINE, ARROW, RECT, CIRCLE, ROUNDRECT
     }
 
     public ShapeType getShapeType() {

@@ -38,7 +38,6 @@ import java.util.List;
 public class MarkableImageView extends ImageView {
 
     final String TAG = "huanghaiqi";
-    final boolean mIsNeedDebug = true;
     /**
      * paint to draw arrow rect circle .etc;
      */
@@ -137,6 +136,11 @@ public class MarkableImageView extends ImageView {
     private void saveFinalState() {
         Shape shape = shapes.get(shapes.size() - 1);
         switch (shape.getShapeType()) {
+            case LINE:
+                PointF[] linePoints = shape.getPoints();
+                linePoints[1].x = mEndPointF.x;
+                linePoints[1].y = mEndPointF.y;
+                break;
             case ARROW:
                 PointF[] arrowPoints = shape.getPoints();
                 arrowPoints[0].x = mEndPointF.x;
@@ -147,7 +151,10 @@ public class MarkableImageView extends ImageView {
                 circlePoints[1].x = mEndPointF.x;
                 circlePoints[1].y = mEndPointF.y;
                 break;
-            case RECTANGLE:
+            case ROUNDRECT:
+                PointF[] roundRectPoints = shape.getPoints();
+                roundRectPoints[1].x = mEndPointF.x;
+                roundRectPoints[1].y = mEndPointF.y;
                 break;
         }
     }
@@ -158,6 +165,9 @@ public class MarkableImageView extends ImageView {
 
     private void updateShapeState() {
         switch (mNowAddingWhat) {
+            case LINE:
+                updateLinePointFs();
+                break;
             case ARROW:
                 // angle of the arrow
                 updateAngle();
@@ -166,10 +176,17 @@ public class MarkableImageView extends ImageView {
             case CIRCLE:
                 updateCirclePointFsAndRadius();
                 break;
-            case RECTANGLE:
+            case ROUNDRECT:
                 updateRectanglePointFs();
                 break;
         }
+    }
+
+    private void updateLinePointFs() {
+        Shape shape = shapes.get(shapes.size() - 1);
+        PointF[] circlePointFs = shape.getPoints();
+        circlePointFs[1].x = mEndPointF.x;
+        circlePointFs[1].y = mEndPointF.y;
     }
 
     private void updateCirclePointFsAndRadius() {
@@ -226,6 +243,13 @@ public class MarkableImageView extends ImageView {
     private void initShapeType() {
         Shape shape = null;
         switch (mNowAddingWhat) {
+            case LINE:
+                Shape line = new Shape(Shape.ShapeType.LINE);
+                shape = line;
+                PointF[] linePoints = line.getPoints();
+                linePoints[0].x = mStartPointF.x;
+                linePoints[0].y = mStartPointF.y;
+                break;
             case ARROW:
                 Shape triangle = new Shape(Shape.ShapeType.ARROW);
                 shape = triangle;
@@ -240,8 +264,8 @@ public class MarkableImageView extends ImageView {
                 circlePoints[0].x = mStartPointF.x;
                 circlePoints[0].y = mStartPointF.y;
                 break;
-            case RECTANGLE:
-                Shape rectangle = new Shape(Shape.ShapeType.RECTANGLE);
+            case ROUNDRECT:
+                Shape rectangle = new Shape(Shape.ShapeType.ROUNDRECT);
                 shape = rectangle;
                 PointF[] rectanglePoints = rectangle.getPoints();
                 rectanglePoints[0].x = mStartPointF.x;
@@ -269,8 +293,14 @@ public class MarkableImageView extends ImageView {
     private void drawShape(Canvas canvas) {
         for (int i = 0; i < shapes.size(); i++) {
             Shape shape = shapes.get(i);
+            mPaint.setColor(shape.getColor());
             PointF[] pointFs = shape.getPoints();
             switch (shape.getShapeType()) {
+                case LINE:
+                    canvas.drawLine(pointFs[0].x, pointFs[0].y,
+                            pointFs[1].x, pointFs[1].y, mPaint);
+                    mPaint.setStyle(Paint.Style.FILL);
+                    break;
                 case ARROW:
                     //draw arrow
                     //draw triangle
@@ -284,19 +314,6 @@ public class MarkableImageView extends ImageView {
                     canvas.drawLine(pointFs[4].x, pointFs[4].y, pointFs[1].x,
                             pointFs[1].y, mPaint);
 
-                    //just for debug
-                    if (mIsNeedDebug) {
-                        mPaint.setColor(Color.RED);
-                        canvas.drawCircle(pointFs[0].x, pointFs[0].y, 5, mPaint);
-                        mPaint.setColor(Color.YELLOW);
-                        canvas.drawCircle(pointFs[1].x, pointFs[1].y, 5, mPaint);
-                        mPaint.setColor(Color.GREEN);
-                        canvas.drawCircle(pointFs[2].x, pointFs[2].y, 5, mPaint);
-                        mPaint.setColor(Color.BLUE);
-                        canvas.drawCircle(pointFs[3].x, pointFs[3].y, 5, mPaint);
-                        mPaint.setColor(Color.BLACK);
-                    }
-                    //just for debug
                     //draw arrow
                     break;
                 case CIRCLE:
@@ -305,7 +322,7 @@ public class MarkableImageView extends ImageView {
                     canvas.drawCircle(pointFs[0].x, pointFs[0].y, radius, mPaint);
                     mPaint.setStyle(Paint.Style.FILL);
                     break;
-                case RECTANGLE:
+                case ROUNDRECT:
                     mPaint.setStyle(Paint.Style.STROKE);
                     float minLeftTopX = Math.min(pointFs[0].x, pointFs[2].x);
                     float minLeftTopY = Math.min(pointFs[0].y, pointFs[2].y);
