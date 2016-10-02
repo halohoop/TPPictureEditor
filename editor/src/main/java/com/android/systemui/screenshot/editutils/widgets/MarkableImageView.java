@@ -152,6 +152,10 @@ public class MarkableImageView extends ImageView {
         }
     }
 
+    public void setColor(int color) {
+        mPaint.setColor(color);
+    }
+
     private void updateShapeState() {
         switch (mNowAddingWhat) {
             case ARROW:
@@ -244,6 +248,7 @@ public class MarkableImageView extends ImageView {
                 rectanglePoints[0].y = mStartPointF.y;
                 break;
         }
+        shape.setColor(mPaint.getColor());
         shapes.add(shape);
     }
 

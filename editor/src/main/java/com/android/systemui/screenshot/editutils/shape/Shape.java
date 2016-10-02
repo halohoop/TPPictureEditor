@@ -14,11 +14,14 @@ package com.android.systemui.screenshot.editutils.shape;
 
 import android.graphics.PointF;
 
+import java.util.Arrays;
+
 public class Shape {
 
     protected float mRadius = 0;//just for circle
 
     protected int mOrder;
+    protected int mColor;
     protected Mode mMode = Mode.EDITING;
     protected TouchableArea mTouchableArea;
     protected PointF[] mPoints;
@@ -67,6 +70,14 @@ public class Shape {
         this.mPoints = mPoints;
     }
 
+    public int getColor() {
+        return mColor;
+    }
+
+    public void setColor(int color) {
+        this.mColor = color;
+    }
+
     public Mode getMode() {
         return mMode;
     }
@@ -101,10 +112,14 @@ public class Shape {
 
     @Override
     public String toString() {
-        return "ShapeType{" +
-                "mOrder=" + mOrder +
+        return "Shape{" +
+                "mRadius=" + mRadius +
+                ", mOrder=" + mOrder +
+                ", mColor=" + mColor +
                 ", mMode=" + mMode +
                 ", mTouchableArea=" + mTouchableArea +
+                ", mPoints=" + Arrays.toString(mPoints) +
+                ", mShapeType=" + mShapeType +
                 '}';
     }
 }
