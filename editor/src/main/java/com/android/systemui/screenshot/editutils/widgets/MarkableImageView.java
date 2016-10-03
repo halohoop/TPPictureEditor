@@ -157,6 +157,11 @@ public class MarkableImageView extends ImageView {
                 arrowPoints[0].x = mEndPointF.x;
                 arrowPoints[0].y = mEndPointF.y;
                 break;
+            case RECT:
+                PointF[] rectPoints = shape.getPoints();
+                rectPoints[1].x = mEndPointF.x;
+                rectPoints[1].y = mEndPointF.y;
+                break;
             case CIRCLE:
                 PointF[] circlePoints = shape.getPoints();
                 circlePoints[1].x = mEndPointF.x;
@@ -183,6 +188,9 @@ public class MarkableImageView extends ImageView {
                 // angle of the arrow
                 updateAngle();
                 updateTrianglePointFs();
+                break;
+            case RECT:
+                updateRectanglePointFs();
                 break;
             case CIRCLE:
                 updateCirclePointFsAndRadius();
@@ -268,6 +276,13 @@ public class MarkableImageView extends ImageView {
                 arrowPoints[4].x = mStartPointF.x;
                 arrowPoints[4].y = mStartPointF.y;
                 break;
+            case RECT:
+                Shape rectangle = new Shape(Shape.ShapeType.RECT);
+                shape = rectangle;
+                PointF[] rectanglePoints = rectangle.getPoints();
+                rectanglePoints[0].x = mStartPointF.x;
+                rectanglePoints[0].y = mStartPointF.y;
+                break;
             case CIRCLE:
                 Shape circle = new Shape(Shape.ShapeType.CIRCLE);
                 shape = circle;
@@ -276,11 +291,11 @@ public class MarkableImageView extends ImageView {
                 circlePoints[0].y = mStartPointF.y;
                 break;
             case ROUNDRECT:
-                Shape rectangle = new Shape(Shape.ShapeType.ROUNDRECT);
-                shape = rectangle;
-                PointF[] rectanglePoints = rectangle.getPoints();
-                rectanglePoints[0].x = mStartPointF.x;
-                rectanglePoints[0].y = mStartPointF.y;
+                Shape roundRectangle = new Shape(Shape.ShapeType.ROUNDRECT);
+                shape = roundRectangle;
+                PointF[] roundRectanglePoints = roundRectangle.getPoints();
+                roundRectanglePoints[0].x = mStartPointF.x;
+                roundRectanglePoints[0].y = mStartPointF.y;
                 break;
         }
         shape.setColor(mShapePaint.getColor());
@@ -327,6 +342,16 @@ public class MarkableImageView extends ImageView {
 
                     //draw arrow
                     break;
+                case RECT:
+                    mShapePaint.setStyle(Paint.Style.STROKE);
+                    float minLeftTopX = Math.min(pointFs[0].x, pointFs[2].x);
+                    float minLeftTopY = Math.min(pointFs[0].y, pointFs[2].y);
+                    float maxRightBottomX = Math.max(pointFs[0].x, pointFs[2].x);
+                    float maxRightBottomY = Math.max(pointFs[0].y, pointFs[2].y);
+                    canvas.drawRect(minLeftTopX, minLeftTopY,
+                            maxRightBottomX, maxRightBottomY, mShapePaint);
+                    mShapePaint.setStyle(Paint.Style.FILL);
+                    break;
                 case CIRCLE:
                     float radius = shape.getRadius();
                     mShapePaint.setStyle(Paint.Style.STROKE);
@@ -335,12 +360,12 @@ public class MarkableImageView extends ImageView {
                     break;
                 case ROUNDRECT:
                     mShapePaint.setStyle(Paint.Style.STROKE);
-                    float minLeftTopX = Math.min(pointFs[0].x, pointFs[2].x);
-                    float minLeftTopY = Math.min(pointFs[0].y, pointFs[2].y);
-                    float maxRightBottomX = Math.max(pointFs[0].x, pointFs[2].x);
-                    float maxRightBottomY = Math.max(pointFs[0].y, pointFs[2].y);
-                    canvas.drawRoundRect(minLeftTopX, minLeftTopY,
-                            maxRightBottomX, maxRightBottomY,
+                    float minRoundLeftTopX = Math.min(pointFs[0].x, pointFs[2].x);
+                    float minRoundLeftTopY = Math.min(pointFs[0].y, pointFs[2].y);
+                    float maxRoundRightBottomX = Math.max(pointFs[0].x, pointFs[2].x);
+                    float maxRoundRightBottomY = Math.max(pointFs[0].y, pointFs[2].y);
+                    canvas.drawRoundRect(minRoundLeftTopX, minRoundLeftTopY,
+                            maxRoundRightBottomX, maxRoundRightBottomY,
                             radiusCornor, radiusCornor * 2, mShapePaint);
                     mShapePaint.setStyle(Paint.Style.FILL);
                     break;

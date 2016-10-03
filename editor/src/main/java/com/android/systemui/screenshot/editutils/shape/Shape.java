@@ -37,6 +37,10 @@ public class Shape {
                 this.mPoints = new PointF[5];
                 this.mShapeType = ShapeType.ARROW;
                 break;
+            case RECT:
+                this.mPoints = new PointF[4];
+                this.mShapeType = ShapeType.RECT;
+                break;
             case CIRCLE:
                 this.mPoints = new PointF[2];
                 this.mShapeType = ShapeType.CIRCLE;

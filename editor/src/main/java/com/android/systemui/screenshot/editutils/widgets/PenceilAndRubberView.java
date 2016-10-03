@@ -150,6 +150,10 @@ public class PenceilAndRubberView extends View implements AnimationEndMark {
         PENCEILON, RUBBERON
     }
 
+    public MODE getMode() {
+        return this.mMode;
+    }
+
     @Override
     protected void onDraw(Canvas canvas) {
         canvas.save();

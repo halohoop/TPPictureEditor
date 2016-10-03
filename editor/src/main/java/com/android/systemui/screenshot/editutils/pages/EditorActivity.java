@@ -114,6 +114,7 @@ public class EditorActivity extends Activity implements
     public void onModeSelected(PenceilAndRubberView.MODE mode) {
         if (mode == PenceilAndRubberView.MODE.PENCEILON) {
             animationToShowToolsDetailVertical();
+            showPenceilAjustContainer();
         } else if (mode == PenceilAndRubberView.MODE.RUBBERON) {
             animationToHideToolsDetailVertical();
         }
@@ -131,7 +132,11 @@ public class EditorActivity extends Activity implements
             hidePenceilAjustContainer();
         } else {
             mPenceilAndRubberView.setVisibility(View.VISIBLE);
-            showPenceilAjustContainer();
+            if (mPenceilAndRubberView.getMode() == PenceilAndRubberView.MODE.PENCEILON) {
+                showPenceilAjustContainer();
+            }else{
+                animationToHideToolsDetailVertical();
+            }
         }
         if (index == 1) {
             //animation to show the shape layout
@@ -151,7 +156,9 @@ public class EditorActivity extends Activity implements
             //mosaic action
             animationToHideToolsDetailVertical();
         } else {
-            animationToShowToolsDetailVertical();
+            if (mPenceilAndRubberView.getMode() == PenceilAndRubberView.MODE.PENCEILON) {
+                animationToShowToolsDetailVertical();
+            }
         }
     }
 
@@ -161,6 +168,8 @@ public class EditorActivity extends Activity implements
             mMarkableimageview.setNowAddingShapeType(Shape.ShapeType.LINE);
         } else if (index == 1) {
             mMarkableimageview.setNowAddingShapeType(Shape.ShapeType.ARROW);
+        } else if (index == 2) {
+            mMarkableimageview.setNowAddingShapeType(Shape.ShapeType.RECT);
         } else if (index == 3) {
             mMarkableimageview.setNowAddingShapeType(Shape.ShapeType.CIRCLE);
         } else if (index == 4) {
