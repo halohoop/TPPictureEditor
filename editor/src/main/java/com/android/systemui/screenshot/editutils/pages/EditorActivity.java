@@ -90,7 +90,6 @@ public class EditorActivity extends Activity implements
         mColorPickerView.setColorPickListener(this);
         mActionsChooseView.setOnSelectedListener(this);
         mShapesChooseView.setOnSelectedListener(this);
-        mMarkableimageview.enterEditMode();
         mPenceilAndRubberView.setPenceilOrRubberModeCallBack(this);
         mIEditorActivityPresenter = new IEditorActivityPresenterImpls();
         mIEditorActivityPresenter.needAnimationEndToAct(mPenceilAndRubberView);
@@ -102,9 +101,13 @@ public class EditorActivity extends Activity implements
     }
 
     private void initView() {
-        mColorShowViewInPenceilGroup.setColor(Color.parseColor("#FF2968"));
-        mColorShowViewInShapeGroup.setColor(Color.parseColor("#FF2968"));
-        mColorShowViewInTextGroup.setColor(Color.parseColor("#FF2968"));
+        int initColor = Color.parseColor("#FF2968");
+        mColorShowViewInPenceilGroup.setColor(initColor);
+        mColorShowViewInShapeGroup.setColor(initColor);
+        mColorShowViewInTextGroup.setColor(initColor);
+        mMarkableimageview.setNowAddingShapeType(Shape.ShapeType.LINE);
+        mMarkableimageview.enterEditMode();
+        mMarkableimageview.setColor(initColor);
     }
 
     @Override
@@ -181,7 +184,7 @@ public class EditorActivity extends Activity implements
         hideColorPickerView();
     }
 
-    private boolean mIsTextDetailContainerVisible = true;
+    private boolean mIsTextDetailContainerVisible = false;
 
     private void hideTextDetailContainer() {
         if (mIsTextDetailContainerVisible) {
