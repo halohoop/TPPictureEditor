@@ -41,7 +41,7 @@ public class MarkableImageView extends ImageView {
     /**
      * paint to draw arrow rect circle .etc;
      */
-    private Paint mPaint;
+    private Paint mShapePaint;
     private PointF mStartPointF;
     private PointF mEndPointF;
     /**
@@ -64,7 +64,9 @@ public class MarkableImageView extends ImageView {
     private List<Shape> shapes = new ArrayList<>();
     private float mDisX;
     private float mDisY;
-
+    private float mShapePenStrokeWidth = 3;
+    private float mFreeStrokeWidth = 3;
+    private Paint mFreePaint;
 
     public MarkableImageView(Context context) {
         this(context, null);
@@ -76,18 +78,27 @@ public class MarkableImageView extends ImageView {
 
     public MarkableImageView(Context context, AttributeSet attr, int defStyle) {
         super(context, attr, defStyle);
-        mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-//        mPaint.setTextSize(100.0f);
-        mPaint.setColor(Color.BLACK);
-        mPaint.setStrokeCap(Paint.Cap.ROUND);
-        mPaint.setStyle(Paint.Style.FILL);
-        mPaint.setStrokeWidth(3);
+        mShapePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        mFreePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+//        mShapePaint.setTextSize(100.0f);
+        mShapePaint.setColor(Color.BLACK);
+        mFreePaint.setColor(Color.BLACK);
+        mShapePaint.setStrokeCap(Paint.Cap.ROUND);
+        mFreePaint.setStrokeCap(Paint.Cap.ROUND);
+        mShapePaint.setStyle(Paint.Style.FILL);
+        mFreePaint.setStyle(Paint.Style.FILL);
+        mShapePaint.setStrokeWidth(mShapePenStrokeWidth);
+        mFreePaint.setStrokeWidth(mFreeStrokeWidth);
         mStartPointF = new PointF();
         mEndPointF = new PointF();
     }
 
     public void setNowAddingShapeType(Shape.ShapeType mNowAddingWhat) {
         this.mNowAddingWhat = mNowAddingWhat;
+    }
+
+    public void setFreeStrokeWidth(float freeStrokeWidth) {
+        this.mFreeStrokeWidth = freeStrokeWidth;
     }
 
     @Override
@@ -160,7 +171,7 @@ public class MarkableImageView extends ImageView {
     }
 
     public void setColor(int color) {
-        mPaint.setColor(color);
+        mShapePaint.setColor(color);
     }
 
     private void updateShapeState() {
@@ -272,7 +283,7 @@ public class MarkableImageView extends ImageView {
                 rectanglePoints[0].y = mStartPointF.y;
                 break;
         }
-        shape.setColor(mPaint.getColor());
+        shape.setColor(mShapePaint.getColor());
         shapes.add(shape);
     }
 
@@ -293,13 +304,13 @@ public class MarkableImageView extends ImageView {
     private void drawShape(Canvas canvas) {
         for (int i = 0; i < shapes.size(); i++) {
             Shape shape = shapes.get(i);
-            mPaint.setColor(shape.getColor());
+            mShapePaint.setColor(shape.getColor());
             PointF[] pointFs = shape.getPoints();
             switch (shape.getShapeType()) {
                 case LINE:
                     canvas.drawLine(pointFs[0].x, pointFs[0].y,
-                            pointFs[1].x, pointFs[1].y, mPaint);
-                    mPaint.setStyle(Paint.Style.FILL);
+                            pointFs[1].x, pointFs[1].y, mShapePaint);
+                    mShapePaint.setStyle(Paint.Style.FILL);
                     break;
                 case ARROW:
                     //draw arrow
@@ -309,29 +320,29 @@ public class MarkableImageView extends ImageView {
                     triangle.lineTo(pointFs[2].x, pointFs[2].y);
                     triangle.lineTo(pointFs[3].x, pointFs[3].y);
                     triangle.close();
-                    canvas.drawPath(triangle, mPaint);
+                    canvas.drawPath(triangle, mShapePaint);
 
                     canvas.drawLine(pointFs[4].x, pointFs[4].y, pointFs[1].x,
-                            pointFs[1].y, mPaint);
+                            pointFs[1].y, mShapePaint);
 
                     //draw arrow
                     break;
                 case CIRCLE:
                     float radius = shape.getRadius();
-                    mPaint.setStyle(Paint.Style.STROKE);
-                    canvas.drawCircle(pointFs[0].x, pointFs[0].y, radius, mPaint);
-                    mPaint.setStyle(Paint.Style.FILL);
+                    mShapePaint.setStyle(Paint.Style.STROKE);
+                    canvas.drawCircle(pointFs[0].x, pointFs[0].y, radius, mShapePaint);
+                    mShapePaint.setStyle(Paint.Style.FILL);
                     break;
                 case ROUNDRECT:
-                    mPaint.setStyle(Paint.Style.STROKE);
+                    mShapePaint.setStyle(Paint.Style.STROKE);
                     float minLeftTopX = Math.min(pointFs[0].x, pointFs[2].x);
                     float minLeftTopY = Math.min(pointFs[0].y, pointFs[2].y);
                     float maxRightBottomX = Math.max(pointFs[0].x, pointFs[2].x);
                     float maxRightBottomY = Math.max(pointFs[0].y, pointFs[2].y);
                     canvas.drawRoundRect(minLeftTopX, minLeftTopY,
                             maxRightBottomX, maxRightBottomY,
-                            radiusCornor, radiusCornor * 2, mPaint);
-                    mPaint.setStyle(Paint.Style.FILL);
+                            radiusCornor, radiusCornor * 2, mShapePaint);
+                    mShapePaint.setStyle(Paint.Style.FILL);
                     break;
             }
         }
@@ -454,8 +465,19 @@ public class MarkableImageView extends ImageView {
         }
         File myCaptureFile = new File(dirPath + fileName);
         BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(myCaptureFile));
-        bm.compress(Bitmap.CompressFormat.JPEG, 80, bos);
+        bm.compress(Bitmap.CompressFormat.JPEG, 100, bos);
         bos.flush();
         bos.close();
+    }
+
+    public boolean isEdited() {
+        boolean isEdited = true;
+        if (shapes.size() <= 0) {
+            isEdited = false;
+        } else {
+            isEdited = true;
+        }
+        //TODO else
+        return isEdited;
     }
 }

@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context="com.android.systemui.screenshot.editutils.pages.EditorActivity">
+             xmlns:app="http://schemas.android.com/apk/res-auto"
+             xmlns:tools="http://schemas.android.com/tools"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent"
+             tools:context="com.android.systemui.screenshot.editutils.pages.EditorActivity">
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#000"
-        android:orientation="vertical">
+        android:background="#000">
 
         <RelativeLayout
+            android:id="@+id/operation_container"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="2"
+            android:layout_height="60dp"
+            android:layout_alignParentTop="true"
             android:background="#1C1C1C">
 
             <ImageView
@@ -25,7 +25,7 @@
                 android:layout_alignParentLeft="true"
                 android:layout_marginLeft="5dp"
                 android:padding="10dp"
-                android:src="@drawable/cancel" />
+                android:src="@drawable/cancel"/>
 
             <ImageView
                 android:id="@+id/iv_save"
@@ -34,7 +34,7 @@
                 android:layout_alignParentRight="true"
                 android:layout_marginRight="5dp"
                 android:padding="10dp"
-                android:src="@drawable/save" />
+                android:src="@drawable/save"/>
 
             <ImageView
                 android:id="@+id/iv_stepforward"
@@ -42,7 +42,7 @@
                 android:layout_height="match_parent"
                 android:layout_toLeftOf="@id/iv_save"
                 android:padding="10dp"
-                android:src="@drawable/stepforward" />
+                android:src="@drawable/stepforward"/>
 
             <ImageView
                 android:id="@+id/iv_stepbackward"
@@ -50,97 +50,131 @@
                 android:layout_height="match_parent"
                 android:layout_toLeftOf="@id/iv_stepforward"
                 android:padding="10dp"
-                android:src="@drawable/stepback" />
-
+                android:src="@drawable/stepback"/>
 
         </RelativeLayout>
+
+        <LinearLayout
+            android:id="@+id/actions_tools_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:orientation="vertical">
+
+            <FrameLayout
+                android:id="@+id/tools_detail_container"
+                android:layout_width="match_parent"
+                android:layout_height="60dp">
+
+                <LinearLayout
+                    android:id="@+id/penceil_ajust_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="#1C1C1C"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <com.android.systemui.screenshot.editutils.widgets.ThicknessSeekBar
+                        android:id="@+id/thickness_seek_bar"
+                        android:layout_width="0dp"
+                        android:layout_height="12dp"
+                        android:layout_marginLeft="10dp"
+                        android:layout_weight="2"
+                        android:max="50"
+                        android:paddingLeft="11dp"
+                        android:paddingRight="11dp"
+                        android:thumb="@drawable/thickness_ajust"
+                        app:ProgressColor="#f00"/>
+
+                    <com.android.systemui.screenshot.editutils.widgets.AlphaSeekBar
+                        android:id="@+id/alpha_seek_bar"
+                        android:layout_width="0dp"
+                        android:layout_height="12dp"
+                        android:layout_marginLeft="10dp"
+                        android:layout_weight="2"
+                        android:max="100"
+                        android:paddingLeft="11dp"
+                        android:paddingRight="11dp"
+                        android:thumb="@drawable/alpha_ajust"
+                        app:ProgressColor="#f00"/>
+
+                    <com.android.systemui.screenshot.editutils.widgets.ColorShowView
+                        android:id="@+id/color_show_view"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/shapes_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="#1C1C1C"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:visibility="gone">
+
+                    <com.android.systemui.screenshot.editutils.widgets.ShapesChooseView
+                        android:id="@+id/shapes_choose_view"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="7"></com.android.systemui.screenshot.editutils.widgets.ShapesChooseView>
+
+                    <com.android.systemui.screenshot.editutils.widgets.ColorShowView
+                        android:id="@+id/color_show_view_in_shapes_group"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="2"/>
+                </LinearLayout>
+
+                <RelativeLayout
+                    android:id="@+id/text_detail_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center">
+
+                    <ImageView
+                        android:id="@+id/iv_add_text"
+                        android:layout_width="50dp"
+                        android:layout_height="match_parent"
+                        android:src="@drawable/add_text"/>
+
+                    <com.android.systemui.screenshot.editutils.widgets.ColorShowView
+                        android:id="@+id/color_show_view_in_text_detail_container"
+                        android:layout_width="50dp"
+                        android:layout_height="match_parent"
+                        android:layout_toRightOf="@id/iv_add_text"
+                        android:layout_weight="1"/>
+                </RelativeLayout>
+
+                <com.android.systemui.screenshot.editutils.widgets.ColorPickerView
+                    android:id="@+id/color_picker_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="#1C1C1C"
+                    android:visibility="gone"/>
+
+            </FrameLayout>
+
+            <com.android.systemui.screenshot.editutils.widgets.ActionsChooseView
+                android:id="@+id/actions_choose_view"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:background="#000"></com.android.systemui.screenshot.editutils.widgets.ActionsChooseView>
+        </LinearLayout>
 
         <com.android.systemui.screenshot.editutils.widgets.MarkableImageView
             android:id="@+id/markableimageview"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
+            android:layout_height="445dp"
+            android:layout_above="@id/actions_tools_container"
+            android:layout_below="@id/operation_container"
             android:layout_marginLeft="50dp"
             android:layout_marginRight="50dp"
-            android:layout_weight="15"
-            android:background="#0f0"
-            android:scaleType="centerInside"
-            android:src="@mipmap/ic_launcher" />
-
-        <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="3">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="#1C1C1C"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-
-                <com.android.systemui.screenshot.editutils.widgets.ThicknessSeekBar
-                    android:id="@+id/tsb"
-                    android:layout_width="0dp"
-                    android:layout_height="12dp"
-                    android:layout_marginLeft="10dp"
-                    android:layout_weight="2"
-                    android:paddingLeft="11dp"
-                    android:paddingRight="11dp"
-                    android:thumb="@drawable/thickness_ajust"
-                    app:ProgressColor="#f00" />
-
-                <com.android.systemui.screenshot.editutils.widgets.AlphaSeekBar
-                    android:id="@+id/asb"
-                    android:layout_width="0dp"
-                    android:layout_height="12dp"
-                    android:layout_marginLeft="10dp"
-                    android:layout_weight="2"
-                    android:paddingLeft="11dp"
-                    android:paddingRight="11dp"
-                    android:thumb="@drawable/alpha_ajust"
-                    app:ProgressColor="#f00" />
-
-                <com.android.systemui.screenshot.editutils.widgets.ColorShowView
-                    android:id="@+id/color_show_view"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="#1C1C1C"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-
-                <com.android.systemui.screenshot.editutils.widgets.ShapesChooseView
-                    android:id="@+id/shapes_choose_view"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="7"></com.android.systemui.screenshot.editutils.widgets.ShapesChooseView>
-
-                <com.android.systemui.screenshot.editutils.widgets.ColorShowView
-                    android:id="@+id/color_show_view_in_shapes_group"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="2" />
-            </LinearLayout>
-
-            <com.android.systemui.screenshot.editutils.widgets.ColorPickerView
-                android:id="@+id/color_picker_view"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="#1C1C1C" />
-
-        </FrameLayout>
-
-        <com.android.systemui.screenshot.editutils.widgets.ActionsChooseView
-            android:id="@+id/actions_choose_view"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="2"></com.android.systemui.screenshot.editutils.widgets.ActionsChooseView>
-    </LinearLayout>
+            android:background="#00f"
+            android:scaleType="fitCenter"
+            android:src="@mipmap/testpic"/>
+    </RelativeLayout>
 
     <com.android.systemui.screenshot.editutils.widgets.PenceilAndRubberView
         android:id="@+id/penceil_and_rubber_view"

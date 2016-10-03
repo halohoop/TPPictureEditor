@@ -43,6 +43,13 @@ public class ColorPickerView extends View {
     private int mColorSelectedIndex = 0;
     private float mEveryColorWidth;
     private PointF mMiddlePoint;
+    private int defaultColor0;
+    private int defaultColor1;
+    private int defaultColor2;
+    private int defaultColor3;
+    private int defaultColor4;
+    private int defaultColor5;
+    private int defaultColor6;
 
     public ColorPickerView(Context context) {
         this(context, null);
@@ -65,17 +72,23 @@ public class ColorPickerView extends View {
         mRectPadding = 16;
         mSelectStrokeWidth = 3;
         paddingBetweenInnerAndOuter = 5;
+        defaultColor0 = parseColor("#FF2968");
+        defaultColor1 = parseColor("#CC73E1");
+        defaultColor2 = parseColor("#1DADF8");
+        defaultColor3 = parseColor("#63DA38");
+        defaultColor4 = parseColor("#000000");
+        defaultColor5 = parseColor("#FFFFFF");
     }
 
     public void setColors(String... colorHexs) {
         if (colorHexs == null || colorHexs.length <= 0) {
-            mColors.add(parseColor("#FF2968"));
-            mColors.add(parseColor("#CC73E1"));
-            mColors.add(parseColor("#1DADF8"));
-            mColors.add(parseColor("#63DA38"));
-            mColors.add(parseColor("#FFCC00"));
-            mColors.add(parseColor("#000000"));
-            mColors.add(parseColor("#FFFFFF"));
+            mColors.clear();
+            mColors.add(defaultColor0);
+            mColors.add(defaultColor1);
+            mColors.add(defaultColor2);
+            mColors.add(defaultColor3);
+            mColors.add(defaultColor4);
+            mColors.add(defaultColor5);
         } else {
             mColors.clear();
             for (int i = 0; i < colorHexs.length; i++) {
@@ -118,24 +131,28 @@ public class ColorPickerView extends View {
         mMeasuredHeight = getMeasuredHeight();
         mMiddlePoint = new PointF(mMeasuredWidth / 2.0f, mMeasuredHeight / 2.0f);
         setColors();
+        Log.i(TAG, "onSizeChanged: " + "onSizeChanged: w:" + w + " h:" + h);
     }
 
     private void getEveryColorRects() {
         //get every color rect width
         mEveryColorWidth = (mMeasuredWidth - (mColors.size() + 1) * mMarginBetween)
                 / mColors.size();
-
-        Log.i(TAG, "getEveryColorRects:---- " + mEveryColorWidth);
-        Log.i(TAG, "getEveryColorRects:--aa-- " + (mMarginBetween / 2.0f));
         //get every color rects
-        mRects.clear();
-        for (int i = 0; i < mColors.size(); i++) {
-            float thisLeft = (mEveryColorWidth + mMarginBetween) * i + (mMarginBetween / 2.0f);
-            float thisRight = thisLeft + mEveryColorWidth;
-            mRects.add(new Rect((int) thisLeft, 0, (int) thisRight, (int) mMeasuredHeight));
-        }
-        for (Rect mRect : mRects) {
-            Log.i(TAG, "getEveryColorRects: " + mRect.left + "--" + mRect.right);
+        if (mRects.size() != mColors.size()) {
+            mRects.clear();
+            for (int i = 0; i < mColors.size(); i++) {
+                float thisLeft = (mEveryColorWidth + mMarginBetween) * i + (mMarginBetween / 2.0f);
+                float thisRight = thisLeft + mEveryColorWidth;
+                mRects.add(new Rect((int) thisLeft, 0, (int) thisRight, (int) mMeasuredHeight));
+            }
+        } else {
+            for (int i = 0; i < mColors.size(); i++) {
+                float thisLeft = (mEveryColorWidth + mMarginBetween) * i + (mMarginBetween / 2.0f);
+                float thisRight = thisLeft + mEveryColorWidth;
+                Rect rect = mRects.get(i);
+                rect.set((int) thisLeft, 0, (int) thisRight, (int) mMeasuredHeight);
+            }
         }
     }
 
@@ -210,7 +227,8 @@ public class ColorPickerView extends View {
                     mPaint.setColor(Color.WHITE);
                 }
                 mPaint.setStyle(Paint.Style.STROKE);
-                canvas.drawCircle(rect.left + halfWidthOfRect, mMiddlePoint.y, outerDrawRadius, mPaint);
+                canvas.drawCircle(rect.left + halfWidthOfRect, mMiddlePoint.y, outerDrawRadius,
+                        mPaint);
             }
         }
     }
