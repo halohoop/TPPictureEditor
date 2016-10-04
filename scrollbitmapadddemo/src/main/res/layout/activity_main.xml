@@ -7,6 +7,9 @@
     tools:context="com.halohoop.scrollbitmapadddemo.MainActivity">
 
     <ListView
+        android:layout_marginLeft="40dp"
+        android:layout_marginRight="40dp"
+        android:scrollbars="none"
         android:id="@+id/lv"
         android:layout_width="match_parent"
         android:layout_height="match_parent"></ListView>

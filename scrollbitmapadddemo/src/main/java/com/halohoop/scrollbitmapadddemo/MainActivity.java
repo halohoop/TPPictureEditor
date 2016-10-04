@@ -13,19 +13,23 @@ import android.view.Display;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.AbsListView;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.Toast;
+import android.widget.RelativeLayout;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity
+        implements AbsListView.OnScrollListener {
 
     private ListView lv;
     private List<Bitmap> bitmaps;
-        private String[] paths = {
+    private String[] paths = {
             "/mnt/sdcard/Download/pic1.png",
             "/mnt/sdcard/Download/pic2.png",
             "/mnt/sdcard/Download/pic3.png",
@@ -40,13 +44,14 @@ public class MainActivity extends AppCompatActivity {
             "/mnt/sdcard/Download/pic12.png",
             "/mnt/sdcard/Download/pic13.png"
     };
-//    private String[] paths = {
+    //    private String[] paths = {
 //            "/mnt/sdcard/Pictures/Screenshots/Screenshot_2016-10-04-11-30-08.png",
 //            "/mnt/sdcard/Pictures/Screenshots/Screenshot_2016-10-04-11-30-17.png",
 //            "/mnt/sdcard/Pictures/Screenshots/Screenshot_2016-10-04-11-30-24.png",
 //            "/mnt/sdcard/Pictures/Screenshots/Screenshot_2016-10-04-11-30-28.png"
 //    };
     private MyAdapter myAdapter;
+    private ExecutorService mExecutorService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,47 +59,74 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         bitmaps = new ArrayList<>();
         lv = (ListView) findViewById(R.id.lv);
+        mExecutorService = Executors.newFixedThreadPool(1);
         myAdapter = new MyAdapter();
         lv.setAdapter(myAdapter);
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
+        lv.setOnScrollListener(this);
 
-                List<Bitmap> objects = new ArrayList<>();
-                for (int i = 0; i < paths.length; i++) {
-                    String path = paths[i];
-                    final Bitmap bitmap = getBitmap(path);
-                    objects.add(bitmap);
-                }
-                bitmaps = objects;
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(MainActivity.this, "hahaha" + bitmaps.size(), Toast.LENGTH_SHORT).show();
-                        myAdapter.notifyDataSetChanged();
-                    }
-                });
+//        new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//                List<Bitmap> objects = new ArrayList<>();
+//                for (int i = 0; i < paths.length; i++) {
+//                    String path = paths[i];
+//                    final Bitmap bitmap = getBitmap(path);
+//                    objects.add(bitmap);
+//                }
+//                bitmaps = objects;
+//                runOnUiThread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        Toast.makeText(MainActivity.this, "hahaha" + bitmaps.size(), Toast
+//                                .LENGTH_SHORT).show();
+//                        myAdapter.notifyDataSetChanged();
+//                    }
+//                });
+//            }
+//        }).start();
+    }
+
+
+    class MyRunnable implements Runnable {
+
+        @Override
+        public void run() {
+            indexToLoad++;
+            if (indexToLoad >= paths.length) {
+                return;
             }
-        }).start();
+            Log.i("run: ", "run: " + "now loading:" + indexToLoad);
+            String path = paths[indexToLoad];
+            final Bitmap bitmap = getBitmap(path);
+            bitmaps.add(bitmap);
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    myAdapter.notifyDataSetChanged();
+                }
+            });
+        }
     }
 
     private Bitmap getBitmap(String path) {
+        RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) lv
+                .getLayoutParams();
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
         BitmapFactory.decodeFile(path, options);
         Point screenSize = getScreenSize(this);
-        Log.i("getBitmap: ", "getBitmap: "+"size:"+screenSize.x+" "+screenSize.y);
-        Log.i("getBitmap: ", "getBitmap1: "+"size:"+options.outWidth+" "+options.outHeight);
+        Log.i("getBitmap: ", "getBitmap: " + "size:" + screenSize.x + " " + screenSize.y);
+        Log.i("getBitmap: ", "getBitmap1: " + "size:" + options.outWidth + " " + options.outHeight);
         options.inSampleSize = getSampleSize(
-                screenSize.x, screenSize.y,
+                screenSize.x - layoutParams.leftMargin - layoutParams.rightMargin, screenSize.y,
                 options.outWidth, options.outHeight);
         options.inJustDecodeBounds = false;
         return BitmapFactory.decodeFile(path, options);
     }
 
     private int getSampleSize(int screenWidth, int screenHeight, int outWidth, int outHeight) {
-        int widthRatio = Math.round((float) outWidth / (float) screenWidth);
-        int heightRatio = Math.round((float) outHeight / (float) screenHeight);
+        int widthRatio = (int) Math.ceil((float) outWidth / (float) screenWidth);
+        int heightRatio = (int) Math.ceil((float) outHeight / (float) screenHeight);
         return Math.max(widthRatio, heightRatio);
     }
 
@@ -118,6 +150,21 @@ public class MainActivity extends AppCompatActivity {
         }
         return out;
     }
+
+    @Override
+    public void onScrollStateChanged(AbsListView view, int scrollState) {
+    }
+
+    @Override
+    public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int
+            totalItemCount) {
+        int lastVisiableItem = firstVisibleItem + visibleItemCount - 1;
+        if (lastVisiableItem == bitmaps.size() - 1) {
+            mExecutorService.execute(new MyRunnable());
+        }
+    }
+
+    private int indexToLoad = -1;
 
 
     class MyAdapter extends BaseAdapter {
