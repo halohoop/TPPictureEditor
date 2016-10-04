@@ -1,2 +1,2 @@
-include ':app', ':animationdemo', ':CustomSeekbarDemo', ':editor', ':penceilandrubberview', ':scrollbitmapadddemo', ':isovercangetbitmapornot'
+include ':app', ':animationdemo', ':CustomSeekbarDemo', ':editor', ':penceilandrubberview', ':scrollbitmapadddemo', ':isovercangetbitmapornot', ':deliverscroll', ':ScrollTrack'
 include ':mosaicImageView'
