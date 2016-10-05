@@ -17,17 +17,19 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Region;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class SuperBitmapExpandView extends View {
 
     private int mDefaultModeChangeThreadhold = 100;
     private int mModeChangeThreadhold = mDefaultModeChangeThreadhold;
-    private List<Bitmap> mBitmaps = new ArrayList<>();
+    private List<Bitmap> mBitmaps;
     private float mDownY;
     private float mScrollYdistance;
 
@@ -41,17 +43,16 @@ public class SuperBitmapExpandView extends View {
 
     public SuperBitmapExpandView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-    }
-
-    public void setBitmaps(List<Bitmap> bitmaps) {
-        this.mBitmaps = bitmaps;
-        postInvalidate();
+        mBitmaps = Collections.synchronizedList(new ArrayList<Bitmap>());
     }
 
     public void addBitmap(Bitmap bitmap) {
         this.mBitmaps.add(bitmap);
+        mCurrentTotalBitmapsHeight += bitmap.getHeight();
         postInvalidate();
     }
+
+    float mCurrentTotalBitmapsHeight = 0;
 
     enum SCROLLMODE {
         FIX_JUST_CAN_DRAG_UP, REACHING_TO_BOTTOM, SCROLL
@@ -95,6 +96,12 @@ public class SuperBitmapExpandView extends View {
                         mScrollMode = SCROLLMODE.REACHING_TO_BOTTOM;
                     }
                 }
+                float currentTotalHeight = Math.abs(mScrollYdistance) + getMeasuredHeight();
+                if (!mCanScrollUpOrNot && currentTotalHeight > mCurrentTotalBitmapsHeight) {
+                    mScrollYdistance = -(mCurrentTotalBitmapsHeight - getMeasuredHeight());
+                    Log.i("dispatchTouchEvent", "dispatchTouchEvent: mScrollYdistance:" +
+                            mScrollYdistance);
+                }
 
                 mDownY = moveY;
 
@@ -134,9 +141,11 @@ public class SuperBitmapExpandView extends View {
                 }
                 int howManyDistanceToLoadMore = currentTotalBitmapsHeight - currentShownHeight;
                 if (mHowManyDistanceToLoadMore >= howManyDistanceToLoadMore) {
-                    mBitmaps.add(mBitmapDataHelper.getMore());
+                    addBitmap(mBitmapDataHelper.getMore());
                 }
             }
+        } else {
+            mCanScrollUpOrNot = false;
         }
     }
 
@@ -145,6 +154,8 @@ public class SuperBitmapExpandView extends View {
         super.onSizeChanged(w, h, oldw, oldh);
         mHowManyDistanceToLoadMore = getMeasuredHeight() / 3 * 2;
     }
+
+    private boolean mCanScrollUpOrNot = true;
 
     @Override
     protected void onDraw(Canvas canvas) {
@@ -168,8 +179,12 @@ public class SuperBitmapExpandView extends View {
     }
 
     private float getCurrentDrawTopOffset(int currentDrawBitmapIndex) {//index must > 0
+        return getAllBeforeCurrentIndexBitmapHeight(currentDrawBitmapIndex);
+    }
+
+    private float getAllBeforeCurrentIndexBitmapHeight(int currentIndex) {
         int allBitmapsBeforeHeight = 0;
-        for (int i = 0; i < currentDrawBitmapIndex; i++) {
+        for (int i = 0; i < currentIndex; i++) {
             Bitmap bitmap = mBitmaps.get(i);
             allBitmapsBeforeHeight += bitmap.getHeight();
         }
