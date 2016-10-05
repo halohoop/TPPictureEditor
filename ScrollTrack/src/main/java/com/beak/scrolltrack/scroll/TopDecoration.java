@@ -2,6 +2,7 @@ package com.beak.scrolltrack.scroll;
 
 import android.graphics.Rect;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 
 /**
@@ -11,13 +12,15 @@ public class TopDecoration extends RecyclerView.ItemDecoration {
 
     private View mTopView = null;
 
-    public TopDecoration (View topView) {
+    public TopDecoration(View topView) {
         mTopView = topView;
     }
 
     @Override
-    public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
+    public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State
+            state) {
         super.getItemOffsets(outRect, view, parent, state);
+        Log.i("huanghaiqi", "getItemOffsets: " + mTopView.getHeight());
         if (parent.getChildAdapterPosition(view) == 0) {
             outRect.set(0, mTopView.getHeight(), 0, 0);
         }

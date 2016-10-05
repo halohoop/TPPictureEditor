@@ -2,6 +2,7 @@ package com.beak.scrolltrack.scroll;
 
 import android.animation.ObjectAnimator;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 
 /**
@@ -57,11 +58,14 @@ public class TopTrackListener extends RecyclerView.OnScrollListener {
     @Override
     public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
         super.onScrolled(recyclerView, dx, dy);
+        Log.i(TAG, "onScrolled: " + dy);//dy > 0  drag up, dy < 0 drag down
         mTotalDy -= dy;
         mLastDy = dy;
         final float transY = mTargetView.getTranslationY();
         float newTransY;
-        int distance = -mTargetView.getBottom();
+        int distance = -mTargetView.getBottom();//fix value
+        Log.i(TAG, "transY: " + transY);
+        Log.i(TAG, "distance: " + distance);
 
         if (mTotalDy >= distance && dy > 0) {
             return;

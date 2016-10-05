@@ -2,13 +2,12 @@ package com.beak.scrolltrack;
 
 import android.content.Intent;
 import android.net.Uri;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,11 +30,17 @@ public class MainActivity extends AppCompatActivity {
         mMainRecyclerView = (RecyclerView)findViewById(R.id.main_recycler_view);
         mMainRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        mMainRecyclerView.addItemDecoration(new TopDecoration(findViewById(R.id.main_top_view)));
+
         mMainRecyclerView.addOnScrollListener(new TopTrackListener(findViewById(R.id.main_top_view)));
         mMainRecyclerView.addOnScrollListener(new BottomTrackListener(findViewById(R.id.main_bottom_view)));
 
         mMainRecyclerView.setAdapter(new SimpleAdapter());
+        mMainRecyclerView.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                mMainRecyclerView.addItemDecoration(new TopDecoration(findViewById(R.id.main_top_view)));
+            }
+        },2000);
     }
 
     @Override
