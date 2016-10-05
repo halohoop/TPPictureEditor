@@ -63,7 +63,6 @@ public class MainActivity3 extends AppCompatActivity
         mExecutorService.execute(new Runnable() {
             @Override
             public void run() {
-                SystemClock.sleep(1000);
                 String path0 = paths[0];
                 String path1 = paths[1];
                 Bitmap bitmap0 = Utils.getBitmap(path0, MainActivity3.this);
