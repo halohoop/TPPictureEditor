@@ -6,16 +6,22 @@ import android.graphics.PixelFormat;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.ScrollView;
 
 public class MainActivity extends AppCompatActivity
-        implements View.OnLongClickListener,SuperBitmapExpandView.BitmapDataHelper {
+        implements View.OnLongClickListener, SuperBitmapExpandView.BitmapDataHelper
+        , View.OnClickListener,View.OnKeyListener {
 
+    private static final String TAG = "huanghaiqi";
     private String[] paths = {
             "/mnt/sdcard/bluetooth/pic1.png",
             "/mnt/sdcard/bluetooth/pic2.png",
@@ -35,6 +41,12 @@ public class MainActivity extends AppCompatActivity
     private View ll;
     private WindowManager mWindowManager;
     private SuperBitmapExpandView superview;
+    private ImageView ivSave;
+    private ImageView ivCancel;
+    private View view;
+    private int CAN_DRAG_UP = 1;
+    private int CAN_DRAG_DOWN = -1;
+    private View scrollableView;
 
     public void click(View view) {
     }
@@ -57,18 +69,63 @@ public class MainActivity extends AppCompatActivity
         lv = (ListView) findViewById(R.id.lv);
         ll = findViewById(R.id.ll);
         ll.setOnLongClickListener(this);
-
         lv.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, names));
     }
+
     @Override
     public boolean onLongClick(View v) {
         if (Settings.canDrawOverlays(this)) {
             showFloatView();
+            analyseTheViewTreeStructure();
         } else {
             Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION);
             startActivity(intent);
         }
         return true;
+    }
+
+    private void analyseTheViewTreeStructure() {
+        ViewGroup decorView = (ViewGroup) getWindow().getDecorView();
+//        scrollableView = findScrollableView2(decorView);
+        scrollableView = decorView;
+        Log.i(TAG, "analyseTheViewTreeStructure: "+ scrollableView);
+        scrollableView.setDrawingCacheEnabled(true);
+        scrollableView.buildDrawingCache();
+        final Bitmap drawingCache = scrollableView.getDrawingCache();
+        superview.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                superview.addBitmap(drawingCache);
+            }
+        },500);
+    }
+
+    private View findScrollableView(ViewGroup viewGroup) {
+        View scrollableView = null;
+        for (int i = 0; i < viewGroup.getChildCount(); i++) {
+            View childAt = viewGroup.getChildAt(i);
+            if (childAt.canScrollVertically(CAN_DRAG_UP)) {
+                scrollableView = childAt;
+                break;
+            }
+            if (childAt instanceof ViewGroup) {
+                scrollableView = findScrollableView(((ViewGroup) childAt));
+                if (scrollableView != null) {
+                    if (scrollableView.canScrollVertically(CAN_DRAG_UP)) {
+                        break;
+                    }
+                }
+            }
+        }
+        return scrollableView;
+    }
+
+    private View findScrollableView2(ViewGroup viewGroup){
+        View scrollableView = findScrollableView(viewGroup);
+        if (scrollableView instanceof ScrollView) {
+            scrollableView = ((ScrollView) scrollableView).getChildAt(0);
+        }
+        return scrollableView;
     }
 
     private void showFloatView() {
@@ -81,11 +138,14 @@ public class MainActivity extends AppCompatActivity
                         | WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED,
                 PixelFormat.TRANSLUCENT);
 
-        View view = View.inflate(this, R.layout.screenshot, null);
+        view = View.inflate(this, R.layout.screenshot, null);
+        view.setOnKeyListener(this);
         superview = (SuperBitmapExpandView) view.findViewById(R.id.superview);
+        ivSave = (ImageView) view.findViewById(R.id.iv_save);
+        ivCancel = (ImageView) view.findViewById(R.id.iv_cancel);
+        ivSave.setOnClickListener(this);
+        ivCancel.setOnClickListener(this);
         superview.setBitmapDataHelper(this);
-        superview.addBitmap(Utils.getBitmap(paths[0],this));
-        superview.addBitmap(Utils.getBitmap(paths[1],this));
 
         mWindowManager.addView(view, windowLayoutParams);
     }
@@ -100,5 +160,25 @@ public class MainActivity extends AppCompatActivity
         String path = paths[superview.getCurrentBitmapCount()];
         Bitmap bitmap = Utils.getBitmap(path, MainActivity.this);
         return bitmap;
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.iv_cancel:
+                mWindowManager.removeView(view);
+                scrollableView.destroyDrawingCache();
+                break;
+            case R.id.iv_save:
+                break;
+        }
+    }
+
+    @Override
+    public boolean onKey(View v, int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            mWindowManager.removeView(view);
+        }
+        return true;
     }
 }

@@ -40,7 +40,14 @@ public class Utils {
         return Math.max(widthRatio, heightRatio);
     }
 
+    public static int screenSizeWidth = -1;
+    public static int screenSizeHeight = -1;
+
     public static Point getScreenSize(Context context) {
+        if (screenSizeWidth != -1 && screenSizeHeight != -1) {
+            Point out = new Point(screenSizeWidth, screenSizeHeight);
+            return out;
+        }
         WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
         Display display = wm.getDefaultDisplay();
         Point out = new Point();
@@ -52,6 +59,13 @@ public class Utils {
             int height = display.getHeight();
             out.set(width, height);
         }
+        screenSizeWidth = out.x;
+        screenSizeHeight = out.y;
         return out;
+    }
+
+    public static float getScaleRatio(int originBitmapWidth, int targetWidth) {
+        float ratio = ((float) targetWidth) / ((float) originBitmapWidth);
+        return ratio;
     }
 }

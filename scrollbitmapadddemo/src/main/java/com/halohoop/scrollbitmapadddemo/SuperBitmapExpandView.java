@@ -29,9 +29,20 @@ public class SuperBitmapExpandView extends View {
 
     private int mDefaultModeChangeThreadhold = 100;
     private int mModeChangeThreadhold = mDefaultModeChangeThreadhold;
-    private List<Bitmap> mBitmaps;
+    private List<BitmapBean> mBitmaps;
     private float mDownY;
     private float mScrollYdistance;
+
+
+    private class BitmapBean {
+        Bitmap bitmap;
+        float scaleRatio;
+
+        public BitmapBean(Bitmap bitmap, float scaleRatio) {
+            this.bitmap = bitmap;
+            this.scaleRatio = scaleRatio;
+        }
+    }
 
     public SuperBitmapExpandView(Context context) {
         this(context, null);
@@ -43,14 +54,17 @@ public class SuperBitmapExpandView extends View {
 
     public SuperBitmapExpandView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        mBitmaps = Collections.synchronizedList(new ArrayList<Bitmap>());
+        mBitmaps = Collections.synchronizedList(new ArrayList<BitmapBean>());
     }
+
 
     public void addBitmap(Bitmap bitmap) {
         if (bitmap == null) {
             return;
         }
-        this.mBitmaps.add(bitmap);
+        int originBitmapWidth = bitmap.getWidth();
+        float ratio = Utils.getScaleRatio(originBitmapWidth, getMeasuredWidth());
+        this.mBitmaps.add(new BitmapBean(bitmap, ratio));
         mCurrentTotalBitmapsHeight += bitmap.getHeight();
         postInvalidate();
     }
@@ -139,7 +153,7 @@ public class SuperBitmapExpandView extends View {
                 int currentShownHeight = (int) (Math.abs(mScrollYdistance) + getMeasuredHeight());
                 int currentTotalBitmapsHeight = 0;
                 for (int i = 0; i < mBitmaps.size(); i++) {
-                    currentTotalBitmapsHeight += mBitmaps.get(i).getHeight();
+                    currentTotalBitmapsHeight += mBitmaps.get(i).bitmap.getHeight();
                 }
                 int howManyDistanceToLoadMore = currentTotalBitmapsHeight - currentShownHeight;
                 if (mHowManyDistanceToLoadMore >= howManyDistanceToLoadMore) {
@@ -169,13 +183,17 @@ public class SuperBitmapExpandView extends View {
         canvas.translate(0, mScrollYdistance);
         //draw bitmaps
         for (int i = 0; i < mBitmaps.size(); i++) {
-            Bitmap bitmap = mBitmaps.get(i);
+            canvas.save();
+            canvas.scale(mBitmaps.get(i).scaleRatio, mBitmaps.get(i).scaleRatio,
+                    getMeasuredWidth()>>1,0);
+            Bitmap bitmap = mBitmaps.get(i).bitmap;
             float drawTopOffset = 0;
             if (i > 0) {
                 drawTopOffset = getCurrentDrawTopOffset(i);
             }
             int leftAndRightOffset = getMeasuredWidth() - bitmap.getWidth();
             canvas.drawBitmap(bitmap, leftAndRightOffset >> 1, drawTopOffset, null);
+            canvas.restore();
         }
         canvas.restore();
     }
@@ -187,7 +205,7 @@ public class SuperBitmapExpandView extends View {
     private float getAllBeforeCurrentIndexBitmapHeight(int currentIndex) {
         int allBitmapsBeforeHeight = 0;
         for (int i = 0; i < currentIndex; i++) {
-            Bitmap bitmap = mBitmaps.get(i);
+            Bitmap bitmap = mBitmaps.get(i).bitmap;
             allBitmapsBeforeHeight += bitmap.getHeight();
         }
         return allBitmapsBeforeHeight;
