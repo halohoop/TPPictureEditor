@@ -16,8 +16,10 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Point;
+import android.graphics.Rect;
 import android.os.Build;
 import android.view.Display;
+import android.view.View;
 import android.view.WindowManager;
 
 public class Utils {
@@ -67,5 +69,19 @@ public class Utils {
     public static float getScaleRatio(int originBitmapWidth, int targetWidth) {
         float ratio = ((float) targetWidth) / ((float) originBitmapWidth);
         return ratio;
+    }
+
+    public static Rect getViewLocationOnScreen(View scrollableView) {
+        int[] locations = new int[2];
+        if (scrollableView == null || scrollableView.getVisibility() != View.VISIBLE) {
+            return null;
+        }
+        Rect rect = new Rect();
+        scrollableView.getLocationOnScreen(locations);
+        rect.left = locations[0];
+        rect.top = locations[1];
+        rect.right = locations[0] + scrollableView.getMeasuredWidth();
+        rect.bottom = locations[1] + scrollableView.getMeasuredHeight();
+        return rect;
     }
 }

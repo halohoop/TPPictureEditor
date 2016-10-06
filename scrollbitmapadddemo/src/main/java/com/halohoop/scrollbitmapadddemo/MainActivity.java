@@ -15,11 +15,11 @@ import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.ScrollView;
+import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity
         implements View.OnLongClickListener, SuperBitmapExpandView.BitmapDataHelper
-        , View.OnClickListener,View.OnKeyListener {
+        , View.OnClickListener, View.OnKeyListener {
 
     private static final String TAG = "huanghaiqi";
     private String[] paths = {
@@ -76,7 +76,12 @@ public class MainActivity extends AppCompatActivity
     public boolean onLongClick(View v) {
         if (Settings.canDrawOverlays(this)) {
             showFloatView();
-            analyseTheViewTreeStructure();
+            View view = analyseViewTreeToGetScrollableView();
+            if (view != null) {
+                scrollableView = view;
+            }else{
+                Toast.makeText(this, "no scrollable view", Toast.LENGTH_SHORT).show();
+            }
         } else {
             Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION);
             startActivity(intent);
@@ -84,21 +89,38 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    private void analyseTheViewTreeStructure() {
+    private View analyseViewTreeToGetScrollableView() {
         ViewGroup decorView = (ViewGroup) getWindow().getDecorView();
-//        scrollableView = findScrollableView2(decorView);
-        scrollableView = decorView;
-        Log.i(TAG, "analyseTheViewTreeStructure: "+ scrollableView);
-        scrollableView.setDrawingCacheEnabled(true);
-        scrollableView.buildDrawingCache();
-        final Bitmap drawingCache = scrollableView.getDrawingCache();
+
+//        Rect viewLocationOnScreen = Utils.getViewLocationOnScreen(scrollableView);
+//        Bitmap bitmap = Utils.getBitmapInRect(Bitmap );
+        Log.i(TAG, "analyseTheViewTreeStructure: " + scrollableView);
+        decorView.setDrawingCacheEnabled(true);
+        decorView.buildDrawingCache();
+        final Bitmap drawingCache = decorView.getDrawingCache();
         superview.postDelayed(new Runnable() {
             @Override
             public void run() {
                 superview.addBitmap(drawingCache);
             }
-        },500);
+        }, 500);
+
+        return findScrollableView(decorView);
     }
+
+    /*
+    *
+
+
+        Rect viewLocationOnScreen = Utils.getViewLocationOnScreen(scrollableView);
+        Bitmap bitmap = Utils.getBitmapInRect(Bitmap );
+        scrollableView = decorView;
+        Log.i(TAG, "analyseTheViewTreeStructure: " + scrollableView);
+        scrollableView.setDrawingCacheEnabled(true);
+        scrollableView.buildDrawingCache();
+        Bitmap drawingCache = scrollableView.getDrawingCache();
+        superview.addBitmap(drawingCache);
+    */
 
     private View findScrollableView(ViewGroup viewGroup) {
         View scrollableView = null;
@@ -116,14 +138,6 @@ public class MainActivity extends AppCompatActivity
                     }
                 }
             }
-        }
-        return scrollableView;
-    }
-
-    private View findScrollableView2(ViewGroup viewGroup){
-        View scrollableView = findScrollableView(viewGroup);
-        if (scrollableView instanceof ScrollView) {
-            scrollableView = ((ScrollView) scrollableView).getChildAt(0);
         }
         return scrollableView;
     }
@@ -152,7 +166,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public boolean hasMore() {
-        return false;
+        return superview.getCurrentBitmapCount()<paths.length;
     }
 
     @Override
