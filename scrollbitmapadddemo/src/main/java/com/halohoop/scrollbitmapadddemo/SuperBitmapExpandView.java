@@ -47,6 +47,9 @@ public class SuperBitmapExpandView extends View {
     }
 
     public void addBitmap(Bitmap bitmap) {
+        if (bitmap == null) {
+            return;
+        }
         this.mBitmaps.add(bitmap);
         mCurrentTotalBitmapsHeight += bitmap.getHeight();
         postInvalidate();
@@ -111,7 +114,6 @@ public class SuperBitmapExpandView extends View {
 
                 break;
             case MotionEvent.ACTION_UP:
-
                 break;
         }
         return true;

@@ -3,22 +3,22 @@
                 xmlns:tools="http://schemas.android.com/tools"
                 android:id="@+id/activity_main"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                tools:context="com.halohoop.scrollbitmapadddemo.MainActivity">
+                android:layout_height="match_parent">
 
     <Button
-        android:id="@+id/btn_done"
+        android:id="@+id/btn_scroll_done"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:onClick="click"
         android:padding="20dp"
         android:text="done"/>
+
     <com.halohoop.scrollbitmapadddemo.SuperBitmapExpandView
-        android:layout_above="@id/btn_done"
         android:id="@+id/super_bitmap_expand_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_above="@id/btn_scroll_done"
         android:layout_marginLeft="40dp"
         android:layout_marginRight="40dp"
         android:background="#f00"/>
