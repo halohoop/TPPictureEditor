@@ -27,11 +27,12 @@ import java.util.List;
 
 public class SuperBitmapExpandView extends View {
 
-    private int mDefaultModeChangeThreadhold = 100;
+    private int mDefaultModeChangeThreadhold = 300;
     private int mModeChangeThreadhold = mDefaultModeChangeThreadhold;
     private List<BitmapBean> mBitmaps;
     private float mDownY;
     private float mScrollYdistance;
+    private int offsetScroll = 125;
 
 
     private class BitmapBean {
@@ -180,7 +181,7 @@ public class SuperBitmapExpandView extends View {
         canvas.clipRect(0, 0, getMeasuredWidth(), getMeasuredHeight() - mModeChangeThreadhold,
                 Region.Op.INTERSECT);//获取两个交集部分
         canvas.save();
-        canvas.translate(0, mScrollYdistance);
+        canvas.translate(0, offsetScroll + mScrollYdistance);
         //draw bitmaps
         for (int i = 0; i < mBitmaps.size(); i++) {
             canvas.save();
