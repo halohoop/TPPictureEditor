@@ -17,6 +17,8 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import static android.content.Context.WINDOW_SERVICE;
+
 public class MainActivity extends AppCompatActivity
         implements View.OnLongClickListener, SuperBitmapExpandView.BitmapDataHelper
         , View.OnClickListener, View.OnKeyListener {
@@ -72,6 +74,15 @@ public class MainActivity extends AppCompatActivity
         lv.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, names));
     }
 
+    public void click1(View view) {
+        //listview测试是否滑倒最底部的时候就返回fasle了，答案是是的
+        Log.i(TAG, "click1: " + lv.canScrollVertically(1));
+        if (lv.canScrollVertically(1)) {
+            lv.smoothScrollBy(10, 0);
+        }
+
+    }
+
     @Override
     public boolean onLongClick(View v) {
         if (Settings.canDrawOverlays(this)) {
@@ -79,7 +90,7 @@ public class MainActivity extends AppCompatActivity
             View view = analyseViewTreeToGetScrollableView();
             if (view != null) {
                 scrollableView = view;
-            }else{
+            } else {
                 Toast.makeText(this, "no scrollable view", Toast.LENGTH_SHORT).show();
             }
         } else {
@@ -166,7 +177,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public boolean hasMore() {
-        return superview.getCurrentBitmapCount()<paths.length;
+        return superview.getCurrentBitmapCount() < paths.length;
     }
 
     @Override
