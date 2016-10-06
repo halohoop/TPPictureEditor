@@ -1,6 +1,7 @@
 package com.halohoop.scrollableviewscrolltestdemo;
 
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -26,8 +27,6 @@ public class MainActivity extends AppCompatActivity {
             names[i] = "halo" + i;
         }
     }
-
-    private View childAt;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,12 +69,42 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+
+    View lastTail2View = null;
+    int lastTail2Bottom = 0;
+
     public void click(View view) {
-        if (childAt == null) {
-            childAt = lv.getChildAt(lv.getChildCount()-1);
-        }
         //TODO 如何判断最后
-        Log.i(TAG, "click: "+" "+childAt.getBottom());
+//        Log.i(TAG, "click: " + " " + sv.getScrollY());//scrollview可以获取滑动距离
+//        Log.i(TAG, "click: " + " " + rv.computeVerticalScrollRange());
+        //lv就没有办法了
+        //---------------------
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                if (lastTail2View == null) {
+                    //拿到导数第二个view的bottom值
+//                    lastTail2View = lv.getChildAt(lv.getChildCount() - 2);
+                    lastTail2View = rv.getChildAt(rv.getChildCount() - 2);
+                    lastTail2Bottom = lastTail2View.getBottom();
+                    Log.i(TAG, "click: realScrollDistance:" + lastTail2Bottom);
+                } else {
+//                    lv.smoothScrollBy(400, 0);
+                    rv.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            rv.scrollBy(0, 400);
+                        }
+                    });
+                    SystemClock.sleep(20);
+                    int realScrollDistance = lastTail2Bottom - lastTail2View.getBottom();
+//                    lastTail2View = lv.getChildAt(lv.getChildCount() - 2);
+                    lastTail2View = rv.getChildAt(rv.getChildCount() - 2);
+                    lastTail2Bottom = lastTail2View.getBottom();
+                    Log.i(TAG, "click: realScrollDistance:" + realScrollDistance);
+                }
+            }
+        }).start();
     }
 
     public void click1(View view) {
@@ -83,8 +112,6 @@ public class MainActivity extends AppCompatActivity {
         //以下两者不一样，scrollBy直接移动的是绘制的区域，并不是滑动列表
         lv.smoothScrollBy(100, 0);
 //        lv.scrollBy(0, 100);
-        View childAt = lv.getChildAt(lv.getChildCount() - 1);
-        Log.i(TAG, "getBottom: " + childAt.getBottom());
     }
 
     public void click2(View view) {
