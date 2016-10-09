@@ -4,8 +4,12 @@ import android.animation.Animator;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.app.Activity;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -64,8 +68,9 @@ public class EditorActivity extends Activity implements
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_editor);
-        mIvCancel = (ImageView) findViewById(R.id.iv_cancel);
         mMarkableimageview = (MarkableImageView) findViewById(R.id.markableimageview);
+        handleIntentDataIfExist();
+        mIvCancel = (ImageView) findViewById(R.id.iv_cancel);
         mPenceilAndRubberView = (PenceilAndRubberView) findViewById(R.id.penceil_and_rubber_view);
         mActionsChooseView = (ActionsChooseView) findViewById(R.id.actions_choose_view);
         mShapesChooseView = (ShapesChooseView) findViewById(R.id.shapes_choose_view);
@@ -98,6 +103,17 @@ public class EditorActivity extends Activity implements
         mThicknessSeekBar.setOnSeekBarChangeListener(this);
         mAlphaSeekBar.setOnSeekBarChangeListener(this);
         initView();
+    }
+
+    private void handleIntentDataIfExist() {
+        Intent intent = getIntent();
+        String filePath = intent.getStringExtra("EDITOR_TARGET");
+        if (TextUtils.isEmpty(filePath)) {
+            finish();
+            return;
+        }
+        Bitmap bitmap = BitmapFactory.decodeFile(filePath);
+        mMarkableimageview.setImageBitmap(bitmap);
     }
 
     private void initView() {
