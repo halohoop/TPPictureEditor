@@ -19,11 +19,9 @@ import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Region;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
@@ -47,7 +45,7 @@ public class BitmapAutoExpandView extends View
     private float mScrollYdistance = 0;
     private float mDoneScrollYdistance = 0;
     private int offsetScroll = 100;//175
-    private float mVelocity = 1.5f;
+    private float mVelocity = 0.01f;
     private List<TaskAnimatorData> mTaskAnimatorDatas = new ArrayList<>();
 
     public BitmapAutoExpandView(Context context) {
@@ -135,8 +133,8 @@ public class BitmapAutoExpandView extends View
     private boolean isAllowDebug = true;
 
 
-    private int mDefaultModeChangeThreadhold = 66;
-    private int mModeChangeThreadhold = mDefaultModeChangeThreadhold;
+    private float mDefaultModeChangeThreadhold = 66;
+    private float mModeChangeThreadhold = mDefaultModeChangeThreadhold;
 
     private boolean mIsExpandDone = false;
     private boolean mIsEditMode = false;
@@ -145,6 +143,14 @@ public class BitmapAutoExpandView extends View
     protected void onDraw(Canvas canvas) {
         if (mBitmap != null) {
             if (!mIsExpandDone) {
+                mModeChangeThreadhold = mModeChangeThreadhold - Math.abs(mScrollYdistance);
+                if (mModeChangeThreadhold < 0) {
+                    mModeChangeThreadhold = 0;
+                }
+                canvas.clipRect(0, 0, getMeasuredWidth(), getMeasuredHeight());
+                canvas.clipRect(0, 0, getMeasuredWidth(),
+                        getMeasuredHeight() - mModeChangeThreadhold,
+                        Region.Op.INTERSECT);//get two rects intersect parts
                 canvas.save();
                 canvas.translate(0, offsetScroll + mScrollYdistance);
                 canvas.scale(mRatio, mRatio, getMeasuredWidth() >> 1, 0);
@@ -153,9 +159,6 @@ public class BitmapAutoExpandView extends View
                 canvas.restore();
             } else {
                 //fix the draw rect
-                canvas.clipRect(0, 0, getMeasuredWidth(), getMeasuredHeight());
-                canvas.clipRect(0, 0, getMeasuredWidth(), getMeasuredHeight() - mModeChangeThreadhold,
-                        Region.Op.INTERSECT);//获取两个交集部分
                 canvas.save();
                 canvas.translate(0, offsetScroll + mDoneScrollYdistance);
                 canvas.scale(mDoneRatio, mDoneRatio, getMeasuredWidth() >> 1, 0);
@@ -226,7 +229,7 @@ public class BitmapAutoExpandView extends View
         });
 
         float endRatio = Utils.getDoneRatio(mBitmap.getHeight(),
-                800);
+                FIX_902_HEIGHT);
         ValueAnimator doneShrinkScaleAnimation = ValueAnimator.ofFloat(mRatio,
                 endRatio);
         doneShrinkScaleAnimation.setDuration(750);
