@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2016, TP-LINK TECHNOLOGIES CO., LTD.
  *
- * AlphaSeekBar.java
+ * ThicknessSeekBar.java
  *
  * alpha seek bar
  *

@@ -18,6 +18,7 @@ public class MainActivity extends AppCompatActivity {
 
     private BitmapAutoExpandView bae;
     private String path = "/mnt/sdcard/Pictures/Screenshots";
+    private String footerPath = "/mnt/sdcard/Pictures/Screenshots/footer.png";
     private File[] files;
     private List<Bitmap> bitmaps = new ArrayList<>();
 
@@ -51,5 +52,9 @@ public class MainActivity extends AppCompatActivity {
         } else {
             Toast.makeText(MainActivity.this, "end", Toast.LENGTH_SHORT).show();
         }
+    }
+    public void addfooter(View view) {
+        Bitmap bitmap = BitmapFactory.decodeFile(footerPath);
+        bae.setFooterBitmap(bitmap);
     }
 }

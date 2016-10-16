@@ -5,9 +5,13 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
+import java.io.File;
+
 public class MainActivity extends AppCompatActivity {
 
-    private String path = "/mnt/sdcard/Pictures/Screenshots/Screenshot_2016-10-08-03-11-38.png";
+    private String path = "/mnt/sdcard/Pictures/Screenshots/Screenshot_2016-01-01-20-31-49.png";
+    private String dirPath = "/mnt/sdcard/Pictures/Screenshots";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -15,6 +19,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void click(View view) {
+        File dir = new File(dirPath);
+        File[] files = dir.listFiles();
+        String path = files[0].getAbsolutePath();
         Intent intent = new Intent("android.intent.action.TPEIDITOR");
         intent.putExtra("EDITOR_TARGET", path);
         startActivity(intent);

@@ -66,16 +66,16 @@ public class Utils {
         return out;
     }
 
-    public static float getExpandScaleRatio(int originBitmapWidth, int targetWidth) {
+    public static float getExpandScaleRatio(float originBitmapWidth, float targetWidth) {
         return getScaleRatio(originBitmapWidth, targetWidth);
     }
 
-    public static float getDoneRatio(int originBitmapHeight, int targetHeight) {
+    public static float getDoneRatio(float originBitmapHeight, float targetHeight) {
         return getScaleRatio(originBitmapHeight, targetHeight);
     }
 
-    private static float getScaleRatio(int originBitmapWidth, int targetWidth) {
-        float ratio = ((float) targetWidth) / ((float) originBitmapWidth);
+    private static float getScaleRatio(float originBitmapWidth, float targetWidth) {
+        float ratio = targetWidth / originBitmapWidth;
         return ratio;
     }
 

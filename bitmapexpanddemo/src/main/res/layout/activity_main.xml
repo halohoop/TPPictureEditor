@@ -15,11 +15,17 @@
         android:orientation="horizontal">
 
         <Button
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
+            android:layout_weight="1"
             android:layout_height="wrap_content"
             android:onClick="expand"
             android:text="expand start"/>
-
+        <Button
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:onClick="addfooter"
+            android:text="addfooter"/>
     </LinearLayout>
 
     <com.tplink.bitmapexpanddemo.BitmapAutoExpandView

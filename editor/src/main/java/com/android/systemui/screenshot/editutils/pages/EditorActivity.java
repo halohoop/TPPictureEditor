@@ -4,6 +4,8 @@ import android.animation.Animator;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.app.Activity;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -15,6 +17,8 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.animation.AnticipateOvershootInterpolator;
 import android.view.animation.DecelerateInterpolator;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -33,12 +37,16 @@ import com.android.systemui.screenshot.editutils.widgets.PenceilAndRubberView;
 import com.android.systemui.screenshot.editutils.widgets.ShapesChooseView;
 import com.android.systemui.screenshot.editutils.widgets.ThicknessSeekBar;
 
+/**
+ * @hide
+ */
 public class EditorActivity extends Activity implements
         PenceilAndRubberView.PenceilOrRubberModeCallBack,
         ShapesChooseView.OnSelectedListener,
         ActionsChooseView.OnSelectedListener, ColorPickerView.ColorPickListener,
         View.OnClickListener, SeekBar.OnSeekBarChangeListener,
-        Animator.AnimatorListener {
+        Animator.AnimatorListener,
+        DialogInterface.OnClickListener {
 
     private MarkableImageView mMarkableimageview;
     private PenceilAndRubberView mPenceilAndRubberView;
@@ -62,6 +70,9 @@ public class EditorActivity extends Activity implements
      */
     private boolean mIsAnimationEnd = true;
     private ImageView mIvAddText;
+    private EditText mEtTextAdd;
+    private View mTextAddContainer;
+    private String mFilePath;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,7 +97,11 @@ public class EditorActivity extends Activity implements
         mTextDetailContainer = (RelativeLayout) findViewById(R.id.text_detail_container);
         mShapesContainer = (LinearLayout) findViewById(R.id.shapes_container);
         mToolsDetailContainer = (FrameLayout) findViewById(R.id.tools_detail_container);
+        mTextAddContainer = findViewById(R.id.text_add_container);
         mIvAddText = (ImageView) findViewById(R.id.iv_add_text);
+        mEtTextAdd = (EditText) mTextAddContainer.findViewById(R.id.et_text_add);
+        mTextAddContainer.setOnClickListener(this);
+        findViewById(R.id.iv_text_ok).setOnClickListener(this);
         mIvAddText.setOnClickListener(this);
         mIvCancel.setOnClickListener(this);
         mColorShowViewInPenceilGroup.setOnClickListener(this);
@@ -107,12 +122,12 @@ public class EditorActivity extends Activity implements
 
     private void handleIntentDataIfExist() {
         Intent intent = getIntent();
-        String filePath = intent.getStringExtra("EDITOR_TARGET");
-        if (TextUtils.isEmpty(filePath)) {
+        mFilePath = intent.getStringExtra("EDITOR_TARGET");
+        if (TextUtils.isEmpty(mFilePath)) {
             finish();
             return;
         }
-        Bitmap bitmap = BitmapFactory.decodeFile(filePath);
+        Bitmap bitmap = BitmapFactory.decodeFile(mFilePath);
         mMarkableimageview.setImageBitmap(bitmap);
     }
 
@@ -150,7 +165,7 @@ public class EditorActivity extends Activity implements
             mPenceilAndRubberView.setVisibility(View.VISIBLE);
             if (mPenceilAndRubberView.getMode() == PenceilAndRubberView.MODE.PENCEILON) {
                 showPenceilAjustContainer();
-            }else{
+            } else {
                 animationToHideToolsDetailVertical();
             }
         }
@@ -356,14 +371,38 @@ public class EditorActivity extends Activity implements
                     if (!mMarkableimageview.isEdited()) {
                         finish();
                     } else {
-                        //TODO alert dialog
+                        alertDialog();
                     }
                     break;
+                case R.id.iv_save:
+                    mMarkableimageview.saveImageToFile(mFilePath);
+                    finish();
+                    break;
+                case R.id.text_add_container:
+                    hideSystemKeyBoard(mEtTextAdd);
+                    mTextAddContainer.setVisibility(View.GONE);
+                    break;
                 case R.id.iv_add_text:
-                    //TODO add text
+                    mTextAddContainer.setVisibility(View.VISIBLE);
+                    break;
+                case R.id.iv_text_ok:
+                    //TODO add text ok
                     break;
             }
         }
+    }
+
+    private void hideSystemKeyBoard(View v) {
+        InputMethodManager imm = (InputMethodManager) this.getSystemService(Context
+                .INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+    }
+
+    private void alertDialog() {
+        SimpleCustomDialog.Builder dialog = new SimpleCustomDialog.Builder(this);
+        dialog.setNegativeButtonClickListener(this)
+                .setPositiveButtonClickListener(this)
+                .create().show();
     }
 
     @Override
@@ -371,6 +410,15 @@ public class EditorActivity extends Activity implements
         if (seekBar == mThicknessSeekBar) {
             mMarkableimageview.setFreeStrokeWidth(progress);
         } else if (seekBar == mAlphaSeekBar) {
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (!mMarkableimageview.isEdited()) {
+            finish();
+        } else {
+            alertDialog();
         }
     }
 
@@ -402,5 +450,14 @@ public class EditorActivity extends Activity implements
     @Override
     public void onAnimationRepeat(Animator animation) {
 
+    }
+
+    @Override
+    public void onClick(DialogInterface dialog, int which) {
+        if (which == DialogInterface.BUTTON_POSITIVE) {
+            finish();
+        } else if (which == DialogInterface.BUTTON_NEGATIVE) {
+            //eat it
+        }
     }
 }

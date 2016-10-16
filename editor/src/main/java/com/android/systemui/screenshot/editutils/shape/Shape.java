@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2016, TP-LINK TECHNOLOGIES CO., LTD.
  *
- * BaseShapeHolder.java
+ * Shape.java
  *
  * Description
  *
@@ -16,6 +16,9 @@ import android.graphics.PointF;
 
 import java.util.Arrays;
 
+/**
+ * @hide
+ */
 public class Shape {
 
     protected float mRadius = 0;//just for circle

@@ -14,5 +14,8 @@ package com.android.systemui.screenshot.editutils.presenters;
 
 import com.android.systemui.screenshot.editutils.widgets.AnimationEndMarkHelper;
 
+/**
+ * @hide
+ */
 public interface IEditorActivityPresenter extends AnimationEndMarkHelper {
 }

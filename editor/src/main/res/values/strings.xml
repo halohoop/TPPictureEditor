@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">Editor</string>
+    <string name="edited_exist_or_not">"您有未保存的更改，是否退出？"</string>
+    <string name="editor_dialog_exist">"退出"</string>
+    <string name="editor_dialog_cancel">"取消"</string>
 </resources>

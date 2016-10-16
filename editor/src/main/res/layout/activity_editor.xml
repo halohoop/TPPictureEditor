@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context="com.android.systemui.screenshot.editutils.pages.EditorActivity">
+             xmlns:app="http://schemas.android.com/apk/res-auto"
+             xmlns:tools="http://schemas.android.com/tools"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent"
+             tools:context="com.android.systemui.screenshot.editutils.pages.EditorActivity">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -25,7 +25,7 @@
                 android:layout_alignParentLeft="true"
                 android:layout_marginLeft="5dp"
                 android:padding="10dp"
-                android:src="@drawable/cancel" />
+                android:src="@drawable/cancel"/>
 
             <ImageView
                 android:id="@+id/iv_save"
@@ -34,7 +34,7 @@
                 android:layout_alignParentRight="true"
                 android:layout_marginRight="5dp"
                 android:padding="10dp"
-                android:src="@drawable/save" />
+                android:src="@drawable/save"/>
 
             <ImageView
                 android:id="@+id/iv_stepforward"
@@ -42,7 +42,7 @@
                 android:layout_height="match_parent"
                 android:layout_toLeftOf="@id/iv_save"
                 android:padding="10dp"
-                android:src="@drawable/stepforward" />
+                android:src="@drawable/stepforward"/>
 
             <ImageView
                 android:id="@+id/iv_stepbackward"
@@ -50,7 +50,7 @@
                 android:layout_height="match_parent"
                 android:layout_toLeftOf="@id/iv_stepforward"
                 android:padding="10dp"
-                android:src="@drawable/stepback" />
+                android:src="@drawable/stepback"/>
 
         </RelativeLayout>
 
@@ -84,7 +84,7 @@
                         android:paddingLeft="11dp"
                         android:paddingRight="11dp"
                         android:thumb="@drawable/thickness_ajust"
-                        app:ProgressColor="#f00" />
+                        app:ProgressColor="#f00"/>
 
                     <com.android.systemui.screenshot.editutils.widgets.AlphaSeekBar
                         android:id="@+id/alpha_seek_bar"
@@ -96,13 +96,13 @@
                         android:paddingLeft="11dp"
                         android:paddingRight="11dp"
                         android:thumb="@drawable/alpha_ajust"
-                        app:ProgressColor="#f00" />
+                        app:ProgressColor="#f00"/>
 
                     <com.android.systemui.screenshot.editutils.widgets.ColorShowView
                         android:id="@+id/color_show_view"
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
-                        android:layout_weight="1" />
+                        android:layout_weight="1"/>
                 </LinearLayout>
 
                 <LinearLayout
@@ -124,7 +124,7 @@
                         android:id="@+id/color_show_view_in_shapes_group"
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
-                        android:layout_weight="2" />
+                        android:layout_weight="2"/>
                 </LinearLayout>
 
                 <RelativeLayout
@@ -139,14 +139,14 @@
                         android:id="@+id/iv_add_text"
                         android:layout_width="50dp"
                         android:layout_height="match_parent"
-                        android:src="@drawable/add_text" />
+                        android:src="@drawable/add_text"/>
 
                     <com.android.systemui.screenshot.editutils.widgets.ColorShowView
                         android:id="@+id/color_show_view_in_text_detail_container"
                         android:layout_width="50dp"
                         android:layout_height="match_parent"
                         android:layout_toRightOf="@id/iv_add_text"
-                        android:layout_weight="1" />
+                        android:layout_weight="1"/>
                 </RelativeLayout>
 
                 <com.android.systemui.screenshot.editutils.widgets.ColorPickerView
@@ -154,7 +154,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:background="#1C1C1C"
-                    android:visibility="gone" />
+                    android:visibility="gone"/>
 
             </FrameLayout>
 
@@ -171,10 +171,8 @@
             android:layout_height="445dp"
             android:layout_above="@id/actions_tools_container"
             android:layout_below="@id/operation_container"
-            android:layout_marginLeft="50dp"
-            android:layout_marginRight="50dp"
             android:background="#00f"
-            android:scaleType="fitCenter" />
+            android:scaleType="fitCenter"/>
     </RelativeLayout>
 
     <com.android.systemui.screenshot.editutils.widgets.PenceilAndRubberView
@@ -193,7 +191,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="bottom"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:visibility="gone">
 
         <EditText
             android:id="@+id/et_text_add"
@@ -202,18 +201,19 @@
             android:layout_gravity="center_vertical"
             android:layout_weight="5"
             android:background="@android:color/white"
+            android:gravity="center"
             android:lines="5"
             android:text=""
-            android:textColor="@android:color/black" />
+            android:textColor="@android:color/black"/>
 
-        <Button
-            android:id="@+id/btn_text_add"
+        <ImageView
+            android:id="@+id/iv_text_ok"
             android:layout_width="0dp"
             android:layout_height="60dp"
             android:layout_gravity="center_vertical"
             android:layout_weight="1"
-            android:background="@null"
-            android:text="OK"
-            android:textColor="@android:color/white" />
+            android:background="#4A4A4A"
+            android:padding="10dp"
+            android:src="@drawable/save"/>
     </LinearLayout>
 </FrameLayout>

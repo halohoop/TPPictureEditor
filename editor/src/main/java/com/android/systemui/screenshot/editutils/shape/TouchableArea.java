@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2016, TP-LINK TECHNOLOGIES CO., LTD.
  *
- * Area.java
+ * TouchableArea.java
  *
  * Description
  *
@@ -14,6 +14,9 @@ package com.android.systemui.screenshot.editutils.shape;
 
 import android.graphics.PointF;
 
+/**
+ * @hide
+ */
 public class TouchableArea {
     private PointF mLeftTop;
     private PointF mRightBottom;

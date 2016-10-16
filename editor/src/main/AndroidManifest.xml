@@ -12,7 +12,7 @@
         android:supportsRtl="true">
         <activity
             android:windowSoftInputMode="adjustPan|stateHidden"
-            android:name=".EditorActivity"
+            android:name="com.android.systemui.screenshot.editutils.pages.EditorActivity"
             android:exported="true"
             android:launchMode="standard"
             android:screenOrientation="portrait">

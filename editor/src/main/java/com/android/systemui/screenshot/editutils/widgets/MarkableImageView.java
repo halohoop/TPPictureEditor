@@ -20,11 +20,11 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PointF;
 import android.graphics.drawable.BitmapDrawable;
-import android.os.Environment;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.android.systemui.screenshot.editutils.shape.Shape;
 
@@ -449,7 +449,7 @@ public class MarkableImageView extends ImageView {
         mIsEditing = false;
     }
 
-    public void saveImageToFile(ImageView mIv) {
+    public void saveImageToFile(String oldFilePath) {
         BitmapDrawable drawable = (BitmapDrawable) getDrawable();
         Bitmap bitmap = drawable.getBitmap();
 
@@ -459,10 +459,8 @@ public class MarkableImageView extends ImageView {
         Canvas canvas = new Canvas(finalBitmap);
         drawShape(canvas);
 
-        mIv.setImageBitmap(finalBitmap);
-
         try {
-            saveFile(finalBitmap, "huanghaiqi" + System.currentTimeMillis());
+            saveFile(finalBitmap, oldFilePath);
         } catch (IOException e) {
             Log.e("huanghaiqi", "huanghaiqi 保存文件失败!");
             e.printStackTrace();
@@ -477,22 +475,29 @@ public class MarkableImageView extends ImageView {
      * 保存文件
      *
      * @param bm
-     * @param fileName
+     * @param oldFilePath
      * @throws IOException
      */
-    private void saveFile(Bitmap bm, String fileName) throws IOException {
-        String dirPath = Environment.getExternalStorageDirectory().getAbsoluteFile() + File
-                .separator + "huanghaiqi"
-                + File.separator;
-        File dirFile = new File(dirPath);
-        if (!dirFile.exists()) {
-            dirFile.mkdir();
+    private void saveFile(Bitmap bm, String oldFilePath) throws IOException {
+        File oldFile = new File(oldFilePath);
+        File dir = oldFile.getParentFile();
+        if (!dir.exists()) {
+            dir.mkdirs();
         }
-        File myCaptureFile = new File(dirPath + fileName);
+        String fileName = getFileNameFromOldName(oldFile.getName());
+        File myCaptureFile = new File(dir, fileName);
         BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(myCaptureFile));
         bm.compress(Bitmap.CompressFormat.JPEG, 100, bos);
         bos.flush();
         bos.close();
+        Toast.makeText(getContext(), "Save file to " + myCaptureFile.getAbsolutePath(),
+                Toast.LENGTH_SHORT).show();
+    }
+
+    private String getFileNameFromOldName(String oldName) {
+        String substring = oldName.substring(0, oldName.length() - 4);
+        String finalName = substring + System.currentTimeMillis() + ".png";
+        return finalName;
     }
 
     public boolean isEdited() {

@@ -17,6 +17,9 @@ import com.android.systemui.screenshot.editutils.widgets.AnimationEndMark;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * @hide
+ */
 public class IEditorActivityPresenterImpls implements IEditorActivityPresenter {
 
     private final List<AnimationEndMark> needAnimationEnds;

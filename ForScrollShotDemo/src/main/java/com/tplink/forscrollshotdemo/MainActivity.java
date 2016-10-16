@@ -13,6 +13,12 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
     }
 
+    static {
+        for (int i = 0; i < Cheeses.CHEESES.length; i++) {
+            Cheeses.CHEESES[i] = i + Cheeses.CHEESES[i];
+        }
+    }
+
 
     public void listview(View view) {
         Intent intent = new Intent(this, ListActivity.class);

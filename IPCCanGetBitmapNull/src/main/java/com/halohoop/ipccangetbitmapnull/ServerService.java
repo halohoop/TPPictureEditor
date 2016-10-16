@@ -34,15 +34,17 @@ public class ServerService extends Service {
 
     class MyBinder extends Binder {
         @Override
-        protected boolean onTransact(int code, Parcel data, Parcel reply, int flags) throws RemoteException {
+        protected boolean onTransact(int code, Parcel data, Parcel reply, int flags) throws
+                RemoteException {
             if (code == 0) {
                 data.enforceInterface("Halohoop");
                 String path = data.readString();
-                Log.i(TAG, "onTransact: "+path);
+                Log.i(TAG, "onTransact: " + path);
                 Bitmap bitmap = BitmapFactory.decodeFile(path);
                 reply.writeNoException();
                 reply.writeString("hahaha");
-                reply.writeParcelable(bitmap,0);
+                reply.writeParcelable(null, 0);
+                reply.writeParcelable(bitmap, 0);
                 return true;
             } else if (code == 1) {
 

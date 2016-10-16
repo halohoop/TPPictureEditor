@@ -22,6 +22,8 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Region;
 import android.util.AttributeSet;
+import android.util.Log;
+import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
@@ -33,20 +35,25 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BitmapAutoExpandView extends View
-        implements Animator.AnimatorListener, ScaleGestureDetector.OnScaleGestureListener {
+        implements Animator.AnimatorListener, GestureDetector.OnDoubleTapListener {
 
     private Bitmap mBitmap;
-    private ScaleGestureDetector mEditModeScaleGestureDetector;
+    private Bitmap mFooterBitmap;
     private Paint mPaint;
     private static final int FIX_902_WIDTH = 518;
-    private static final int FIX_902_HEIGHT = 800;
     private float mRatio = -1;
     private float mDoneRatio = -1;
     private float mScrollYdistance = 0;
     private float mDoneScrollYdistance = 0;
     private int offsetScroll = 100;//175
-    private float mVelocity = 0.01f;
+    private float mVelocity = 0.5f;
     private List<TaskAnimatorData> mTaskAnimatorDatas = new ArrayList<>();
+    private float mDefaultModeChangeThreadhold = 66;
+    private float mModeChangeThreadhold = mDefaultModeChangeThreadhold;
+    private boolean mIsExpandDone = false;
+    private boolean mIsEditMode = false;
+    private boolean isAllowDebug = true;
+    private GestureDetector mGestureDetector;
 
     public BitmapAutoExpandView(Context context) {
         this(context, null);
@@ -59,7 +66,15 @@ public class BitmapAutoExpandView extends View
     public BitmapAutoExpandView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        mEditModeScaleGestureDetector = new ScaleGestureDetector(getContext(), this);
+        mGestureDetector = new GestureDetector(getContext(), new GestureListener());
+        mGestureDetector.setOnDoubleTapListener(this);
+    }
+
+    public void setFooterBitmap(Bitmap footerBitmap) {
+        if (footerBitmap != null) {
+            this.mFooterBitmap = footerBitmap;
+            this.mModeChangeThreadhold = mFooterBitmap.getHeight();
+        }
     }
 
     private class TaskAnimatorData {
@@ -129,41 +144,41 @@ public class BitmapAutoExpandView extends View
         return scrollAnimation;
     }
 
-
-    private boolean isAllowDebug = true;
-
-
-    private float mDefaultModeChangeThreadhold = 66;
-    private float mModeChangeThreadhold = mDefaultModeChangeThreadhold;
-
-    private boolean mIsExpandDone = false;
-    private boolean mIsEditMode = false;
-
     @Override
     protected void onDraw(Canvas canvas) {
         if (mBitmap != null) {
-            if (!mIsExpandDone) {
-                mModeChangeThreadhold = mModeChangeThreadhold - Math.abs(mScrollYdistance);
-                if (mModeChangeThreadhold < 0) {
-                    mModeChangeThreadhold = 0;
+            if (!mIsExpandDone) {//scroll
+                if (mFooterBitmap == null) {
+                    mModeChangeThreadhold = mModeChangeThreadhold - Math.abs(mScrollYdistance);
+                    if (mModeChangeThreadhold < 0) {
+                        mModeChangeThreadhold = 0;
+                    }
+                    canvas.clipRect(0, 0, getMeasuredWidth(), getMeasuredHeight());
+                    canvas.clipRect(0, 0, getMeasuredWidth(),
+                            getMeasuredHeight() - mModeChangeThreadhold,
+                            Region.Op.INTERSECT);//get two rects intersect parts
                 }
-                canvas.clipRect(0, 0, getMeasuredWidth(), getMeasuredHeight());
-                canvas.clipRect(0, 0, getMeasuredWidth(),
-                        getMeasuredHeight() - mModeChangeThreadhold,
-                        Region.Op.INTERSECT);//get two rects intersect parts
                 canvas.save();
                 canvas.translate(0, offsetScroll + mScrollYdistance);
                 canvas.scale(mRatio, mRatio, getMeasuredWidth() >> 1, 0);
                 int leftAndRightOffset = getMeasuredWidth() - mBitmap.getWidth();
                 canvas.drawBitmap(mBitmap, leftAndRightOffset >> 1, 0, null);
+                if (mFooterBitmap != null) {
+                    canvas.drawBitmap(mFooterBitmap, leftAndRightOffset >> 1, mBitmap.getHeight()
+                            , null);
+                }
                 canvas.restore();
-            } else {
+            } else {//scroll done
                 //fix the draw rect
                 canvas.save();
                 canvas.translate(0, offsetScroll + mDoneScrollYdistance);
                 canvas.scale(mDoneRatio, mDoneRatio, getMeasuredWidth() >> 1, 0);
                 int leftAndRightOffset = getMeasuredWidth() - mBitmap.getWidth();
                 canvas.drawBitmap(mBitmap, leftAndRightOffset >> 1, 0, null);
+                if (mFooterBitmap != null) {
+                    canvas.drawBitmap(mFooterBitmap, leftAndRightOffset >> 1, mBitmap.getHeight()
+                            , null);
+                }
                 canvas.restore();
             }
         }
@@ -173,7 +188,7 @@ public class BitmapAutoExpandView extends View
     public boolean dispatchTouchEvent(MotionEvent event) {
         if (mIsEditMode) {
 //            if (event.getPointerCount() > 1) {
-            return mEditModeScaleGestureDetector.onTouchEvent(event);
+            return mGestureDetector.onTouchEvent(event);
 //            }
 //            switch (event.getAction()) {
 //                case MotionEvent.ACTION_DOWN:
@@ -227,9 +242,14 @@ public class BitmapAutoExpandView extends View
                 invalidate();
             }
         });
-
-        float endRatio = Utils.getDoneRatio(mBitmap.getHeight(),
-                FIX_902_HEIGHT);
+        float endRatio = 1;
+        if (mFooterBitmap == null) {
+            endRatio = Utils.getDoneRatio(mBitmap.getHeight(),
+                    getMeasuredHeight() - mDefaultModeChangeThreadhold - offsetScroll);
+        } else {
+            endRatio = Utils.getDoneRatio(mBitmap.getHeight(),
+                    getMeasuredHeight() - mFooterBitmap.getHeight() - offsetScroll);
+        }
         ValueAnimator doneShrinkScaleAnimation = ValueAnimator.ofFloat(mRatio,
                 endRatio);
         doneShrinkScaleAnimation.setDuration(750);
@@ -266,24 +286,73 @@ public class BitmapAutoExpandView extends View
     }
 
     @Override
-    public boolean onScale(ScaleGestureDetector detector) {
-        //缩放比例
-        float cur = detector.getCurrentSpan();
-        float pre = detector.getPreviousSpan();
-        float cp = cur - pre;
-        invalidate();
-        return true;//handle the event,not pass down
-    }
-
-    @Override
-    public boolean onScaleBegin(ScaleGestureDetector detector) {
+    public boolean onSingleTapConfirmed(MotionEvent e) {
+        if (isAllowDebug) {
+            Log.i("onSingleTapConfirmed", "onSingleTapConfirmed");
+        }
         return true;
     }
 
     @Override
-    public void onScaleEnd(ScaleGestureDetector detector) {
-
+    public boolean onDoubleTap(MotionEvent e) {
+        if (isAllowDebug) {
+            Log.i("onDoubleTap", "Gesture onDoubleTap");
+        }
+        return true;
     }
 
+    @Override
+    public boolean onDoubleTapEvent(MotionEvent e) {
+        if (isAllowDebug) {
+            Log.i("onDoubleTapEvent", "Gesture onDoubleTapEvent");
+        }
+        return true;
+    }
 
+    //OnGestureListener监听
+    private class GestureListener implements GestureDetector.OnGestureListener {
+
+        public boolean onDown(MotionEvent e) {
+            if (isAllowDebug) {
+                Log.i("onDown", "Gesture onDown");
+            }
+            return true;
+        }
+
+        public void onShowPress(MotionEvent e) {
+            if (isAllowDebug) {
+                Log.i("onShowPress", "Gesture onShowPress");
+            }
+        }
+
+        public boolean onSingleTapUp(MotionEvent e) {
+            if (isAllowDebug) {
+                Log.i("onSingleTapUp", "Gesture onSingleTapUp");
+            }
+            return true;
+        }
+
+        public boolean onScroll(MotionEvent e1, MotionEvent e2,
+                                float distanceX, float distanceY) {
+            if (isAllowDebug) {
+                Log.i("onScroll", "Gesture onScroll:" + (e2.getX() - e1.getX()) + "   " + distanceX);
+            }
+
+            return true;
+        }
+
+        public void onLongPress(MotionEvent e) {
+            if (isAllowDebug) {
+                Log.i("onLongPress", "Gesture onLongPress");
+            }
+        }
+
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
+                               float velocityY) {
+            if (isAllowDebug) {
+                Log.i("onFling", "Gesture onFling velocityY:" + velocityY);
+            }
+            return true;
+        }
+    }
 }

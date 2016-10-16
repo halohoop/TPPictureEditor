@@ -65,8 +65,10 @@ public class MainActivity extends AppCompatActivity {
             Log.i(TAG, "show: "+result);
             Bitmap bitmap = _reply.readParcelable(Bitmap.class.getClassLoader());
             iv.setImageBitmap(bitmap);
+            Log.i(TAG, "show:bitmap: "+bitmap);
             Bitmap bitmap1 = _reply.readParcelable(Bitmap.class.getClassLoader());
             Log.i(TAG, "show:bitmap1: "+bitmap1);
+            iv.setImageBitmap(bitmap1);
             _data.recycle();
             _reply.recycle();
         } catch (RemoteException e) {
