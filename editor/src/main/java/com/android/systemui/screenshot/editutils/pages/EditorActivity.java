@@ -138,7 +138,7 @@ public class EditorActivity extends Activity implements
         mColorShowViewInTextGroup.setColor(initColor);
         mMarkableimageview.setNowAddingShapeType(Shape.ShapeType.LINE);
         mMarkableimageview.enterEditMode();
-        mMarkableimageview.setColor(initColor);
+        mMarkableimageview.changePaintColor(initColor);
     }
 
     @Override
@@ -162,6 +162,7 @@ public class EditorActivity extends Activity implements
             mPenceilAndRubberView.setVisibility(View.GONE);
             hidePenceilAjustContainer();
         } else {
+            mMarkableimageview.setInWhichMode(MarkableImageView.MODE_FREE_DRAW);
             mPenceilAndRubberView.setVisibility(View.VISIBLE);
             if (mPenceilAndRubberView.getMode() == PenceilAndRubberView.MODE.PENCEILON) {
                 showPenceilAjustContainer();
@@ -170,6 +171,7 @@ public class EditorActivity extends Activity implements
             }
         }
         if (index == 1) {
+            mMarkableimageview.setInWhichMode(MarkableImageView.MODE_TEXT);
             //animation to show the shape layout
             animationToShowToolsDetailVertical();
             showTextDetailContainer();
@@ -177,6 +179,7 @@ public class EditorActivity extends Activity implements
             hideTextDetailContainer();
         }
         if (index == 2) {
+            mMarkableimageview.setInWhichMode(MarkableImageView.MODE_SHAPE);
             //animation to show the shape layout
             animationToShowToolsDetailVertical();
             showShapesContainer();
@@ -184,6 +187,7 @@ public class EditorActivity extends Activity implements
             hideShapesContainer();
         }
         if (index == 3) {
+            mMarkableimageview.setInWhichMode(MarkableImageView.MODE_MOSAIC_DRAW);
             //mosaic action
             animationToHideToolsDetailVertical();
         } else {
@@ -210,7 +214,7 @@ public class EditorActivity extends Activity implements
 
     @Override
     public void onColorPicked(int color) {
-        mMarkableimageview.setColor(color);
+        mMarkableimageview.changePaintColor(color);
         mColorShowViewInPenceilGroup.setColor(color);
         mColorShowViewInShapeGroup.setColor(color);
         mColorShowViewInTextGroup.setColor(color);
@@ -408,8 +412,9 @@ public class EditorActivity extends Activity implements
     @Override
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
         if (seekBar == mThicknessSeekBar) {
-            mMarkableimageview.setFreeStrokeWidth(progress);
+            mMarkableimageview.changeFreeDrawPaintThickness(progress);
         } else if (seekBar == mAlphaSeekBar) {
+            mMarkableimageview.changeFreeDrawPaintAlpha(progress);
         }
     }
 

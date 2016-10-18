@@ -92,7 +92,7 @@
                         android:layout_height="12dp"
                         android:layout_marginLeft="10dp"
                         android:layout_weight="2"
-                        android:max="100"
+                        android:max="255"
                         android:paddingLeft="11dp"
                         android:paddingRight="11dp"
                         android:thumb="@drawable/alpha_ajust"

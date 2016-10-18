@@ -12,6 +12,7 @@
 
 package com.android.systemui.screenshot.editutils.shape;
 
+import android.graphics.Path;
 import android.graphics.PointF;
 
 import java.util.Arrays;
@@ -29,6 +30,9 @@ public class Shape {
     protected TouchableArea mTouchableArea;
     protected PointF[] mPoints;
     protected ShapeType mShapeType = ShapeType.LINE;
+    protected String mText;
+    protected static final int NORMAL_TEXT_SZIE = 12;
+    protected int mTextSize = NORMAL_TEXT_SZIE;
 
     public Shape(ShapeType shapeType) {
         switch (shapeType) {
@@ -113,6 +117,14 @@ public class Shape {
         this.mTouchableArea = touchableArea;
     }
 
+    public String getText() {
+        return mText;
+    }
+
+    public void setText(String text) {
+        this.mText = text;
+    }
+
     public float getRadius() {
         return mRadius;
     }
@@ -131,6 +143,8 @@ public class Shape {
                 ", mTouchableArea=" + mTouchableArea +
                 ", mPoints=" + Arrays.toString(mPoints) +
                 ", mShapeType=" + mShapeType +
+                ", mText='" + mText + '\'' +
+                ", mTextSize=" + mTextSize +
                 '}';
     }
 }

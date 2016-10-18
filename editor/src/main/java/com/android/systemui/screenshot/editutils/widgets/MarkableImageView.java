@@ -26,6 +26,7 @@ import android.view.MotionEvent;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.android.systemui.screenshot.editutils.shape.PathBean;
 import com.android.systemui.screenshot.editutils.shape.Shape;
 
 import java.io.BufferedOutputStream;
@@ -56,16 +57,27 @@ public class MarkableImageView extends ImageView {
     private float widthOfArrow = 10.0f;
     private float radiusCornor = 5.0f;
 
+    public final static int MODE_FREE_DRAW = 100;
+    public final static int MODE_TEXT = MODE_FREE_DRAW + 1;
+    public final static int MODE_SHAPE = MODE_FREE_DRAW + 2;
+    public final static int MODE_MOSAIC_DRAW = MODE_FREE_DRAW + 3;
+
+    /**
+     * 标识当前正在那种编辑模式
+     */
+    private int mInWhichMode = MODE_FREE_DRAW;
     /**
      * 标识当前正在添加哪一种类型的图形（箭头，圆，方）
      */
-    private Shape.ShapeType mNowAddingWhat = Shape.ShapeType.CIRCLE;
+    private Shape.ShapeType mNowAddingWhatForShapeMode = Shape.ShapeType.CIRCLE;
 
-    private List<Shape> shapes = new ArrayList<>();
+    //drawing data list
+    private List<Shape> mShapes = new ArrayList<>();
+    private List<PathBean> mFreeDrawsPath = new ArrayList<>();
+
     private float mDisX;
     private float mDisY;
     private float mShapePenStrokeWidth = 3;
-    private float mFreeStrokeWidth = 3;
     private Paint mFreePaint;
 
     public MarkableImageView(Context context) {
@@ -85,57 +97,121 @@ public class MarkableImageView extends ImageView {
         mFreePaint.setColor(Color.BLACK);
         mShapePaint.setStrokeCap(Paint.Cap.ROUND);
         mFreePaint.setStrokeCap(Paint.Cap.ROUND);
+        mFreePaint.setStyle(Paint.Style.STROKE);
         mShapePaint.setStyle(Paint.Style.FILL);
-        mFreePaint.setStyle(Paint.Style.FILL);
         mShapePaint.setStrokeWidth(mShapePenStrokeWidth);
-        mFreePaint.setStrokeWidth(mFreeStrokeWidth);
+        mFreePaint.setStrokeWidth(1);
         mStartPointF = new PointF();
         mEndPointF = new PointF();
     }
 
     public void setNowAddingShapeType(Shape.ShapeType mNowAddingWhat) {
-        this.mNowAddingWhat = mNowAddingWhat;
+        this.mNowAddingWhatForShapeMode = mNowAddingWhat;
     }
 
-    public void setFreeStrokeWidth(float freeStrokeWidth) {
-        this.mFreeStrokeWidth = freeStrokeWidth;
+    public void changePaintColor(int color) {
+        mFreePaint.setColor(color);
+        mShapePaint.setColor(color);
     }
+
+    public void changeFreeDrawPaintThickness(int thickness) {
+        mFreePaint.setStrokeWidth(thickness);
+    }
+
+    public void changeFreeDrawPaintAlpha(int alpha) {
+        mFreePaint.setAlpha(alpha);
+    }
+
 
     @Override
     public boolean dispatchTouchEvent(MotionEvent event) {
         if (mIsEditing) {
             int action = event.getAction();
-            switch (action) {
-                case MotionEvent.ACTION_DOWN:
-                    // This is the arrow start point
-                    mStartPointF.x = event.getX();
-                    mStartPointF.y = event.getY();
-
-                    initShapeType();
-
-                    break;
-                case MotionEvent.ACTION_MOVE:
-                    mEndPointF.x = event.getX();
-                    mEndPointF.y = event.getY();
-
-                    updateDistanceXY();
-
-                    updateShapeState();
-
-                    invalidate();
-                    break;
-                case MotionEvent.ACTION_UP:
-                    mEndPointF.x = event.getX();
-                    mEndPointF.y = event.getY();
-
-                    saveFinalState();
-
-                    invalidate();
-                    break;
+            if (mInWhichMode == MODE_FREE_DRAW) {
+                handleFreeDrawModeTouch(event, action);
+            } else if (mInWhichMode == MODE_SHAPE) {
+                handleShapeModeTouch(event, action);
             }
             return true;
         } else {
             return super.dispatchTouchEvent(event);
+        }
+    }
+
+    public int getInWhichMode() {
+        return mInWhichMode;
+    }
+
+    public void setInWhichMode(int inWhichMode) {
+        this.mInWhichMode = inWhichMode;
+    }
+
+    private void handleFreeDrawModeTouch(MotionEvent event, int action) {
+        float x = event.getX();
+        float y = event.getY();
+        switch (action) {
+            case MotionEvent.ACTION_DOWN:
+                PathBean pathBean = new PathBean();
+                Path newPath = new Path();
+                newPath.moveTo(x, y);
+                pathBean.setPath(newPath);
+                pathBean.setColor(mFreePaint.getColor());
+                pathBean.setStrokeWidth(mFreePaint.getStrokeWidth());
+                pathBean.setAlpha(mFreePaint.getAlpha());
+                mFreeDrawsPath.add(pathBean);
+                break;
+            case MotionEvent.ACTION_MOVE:
+                PathBean pathBeanMove = mFreeDrawsPath.get(mFreeDrawsPath.size() - 1);
+                if (pathBeanMove != null) {
+                    pathBeanMove.setIsAvailable(true);
+                    Path path = pathBeanMove.getPath();
+                    path.quadTo(x, y, x, y);
+                }
+                invalidate();
+                break;
+            case MotionEvent.ACTION_UP:
+                PathBean pathBeanUp = mFreeDrawsPath.get(mFreeDrawsPath.size() - 1);
+                if (pathBeanUp != null) {
+                    Path path = pathBeanUp.getPath();
+                    path.quadTo(x, y, x, y);
+                }
+                boolean isAvailable = pathBeanUp.isIsAvailable();
+                if (!isAvailable) {
+                    mFreeDrawsPath.remove(pathBeanUp);
+                }
+                invalidate();
+                break;
+        }
+    }
+
+    private void handleShapeModeTouch(MotionEvent event, int action) {
+        switch (action) {
+            case MotionEvent.ACTION_DOWN:
+                // This is the arrow start point
+                mStartPointF.x = event.getX();
+                mStartPointF.y = event.getY();
+
+                initShapeType();
+
+                break;
+            case MotionEvent.ACTION_MOVE:
+                mEndPointF.x = event.getX();
+                mEndPointF.y = event.getY();
+
+                updateDistanceXY();
+
+                updateShapeState();
+
+                invalidate();
+                break;
+            case MotionEvent.ACTION_UP:
+                mEndPointF.x = event.getX();
+                mEndPointF.y = event.getY();
+
+                saveFinalState();
+
+                invalidate();
+                break;
         }
     }
 
@@ -145,7 +221,7 @@ public class MarkableImageView extends ImageView {
     }
 
     private void saveFinalState() {
-        Shape shape = shapes.get(shapes.size() - 1);
+        Shape shape = mShapes.get(mShapes.size() - 1);
         switch (shape.getShapeType()) {
             case LINE:
                 PointF[] linePoints = shape.getPoints();
@@ -175,12 +251,8 @@ public class MarkableImageView extends ImageView {
         }
     }
 
-    public void setColor(int color) {
-        mShapePaint.setColor(color);
-    }
-
     private void updateShapeState() {
-        switch (mNowAddingWhat) {
+        switch (mNowAddingWhatForShapeMode) {
             case LINE:
                 updateLinePointFs();
                 break;
@@ -202,14 +274,14 @@ public class MarkableImageView extends ImageView {
     }
 
     private void updateLinePointFs() {
-        Shape shape = shapes.get(shapes.size() - 1);
+        Shape shape = mShapes.get(mShapes.size() - 1);
         PointF[] circlePointFs = shape.getPoints();
         circlePointFs[1].x = mEndPointF.x;
         circlePointFs[1].y = mEndPointF.y;
     }
 
     private void updateCirclePointFsAndRadius() {
-        Shape shape = shapes.get(shapes.size() - 1);
+        Shape shape = mShapes.get(mShapes.size() - 1);
         PointF[] circlePointFs = shape.getPoints();
         circlePointFs[1].x = mEndPointF.x;
         circlePointFs[1].y = mEndPointF.y;
@@ -218,7 +290,7 @@ public class MarkableImageView extends ImageView {
     }
 
     private void updateRectanglePointFs() {
-        Shape shape = shapes.get(shapes.size() - 1);
+        Shape shape = mShapes.get(mShapes.size() - 1);
         PointF[] rectanglePointFs = shape.getPoints();
         //----------------------
         //left top to right bottom
@@ -261,7 +333,7 @@ public class MarkableImageView extends ImageView {
 
     private void initShapeType() {
         Shape shape = null;
-        switch (mNowAddingWhat) {
+        switch (mNowAddingWhatForShapeMode) {
             case LINE:
                 Shape line = new Shape(Shape.ShapeType.LINE);
                 shape = line;
@@ -299,7 +371,7 @@ public class MarkableImageView extends ImageView {
                 break;
         }
         shape.setColor(mShapePaint.getColor());
-        shapes.add(shape);
+        mShapes.add(shape);
     }
 
     private void updateAngle() {
@@ -312,13 +384,27 @@ public class MarkableImageView extends ImageView {
     protected void onDraw(Canvas canvas) {
         //draw picture
         super.onDraw(canvas);
-        //draw our lovely shapes
+        //draw our lovely free draws
+        drawFree(canvas);
+        //draw our lovely mShapes
         drawShape(canvas);
+        //TODO draw our lovely text
+        //TODO draw our lovely mosaic
+    }
+
+    private void drawFree(Canvas canvas) {
+        for (int i = 0; i < mFreeDrawsPath.size(); i++) {
+            PathBean pathBean = mFreeDrawsPath.get(i);
+            Path path = pathBean.getPath();
+            mFreePaint.setColor(pathBean.getColor());
+            mFreePaint.setStrokeWidth(pathBean.getStrokeWidth());
+            canvas.drawPath(path, mFreePaint);
+        }
     }
 
     private void drawShape(Canvas canvas) {
-        for (int i = 0; i < shapes.size(); i++) {
-            Shape shape = shapes.get(i);
+        for (int i = 0; i < mShapes.size(); i++) {
+            Shape shape = mShapes.get(i);
             mShapePaint.setColor(shape.getColor());
             PointF[] pointFs = shape.getPoints();
             switch (shape.getShapeType()) {
@@ -374,7 +460,7 @@ public class MarkableImageView extends ImageView {
     }
 
     public void updateTrianglePointFs() {
-        Shape shape = shapes.get(shapes.size() - 1);
+        Shape shape = mShapes.get(mShapes.size() - 1);
         PointF[] trianglePointFs = shape.getPoints();
 
         trianglePointFs[0].x = mEndPointF.x;
@@ -453,7 +539,6 @@ public class MarkableImageView extends ImageView {
         BitmapDrawable drawable = (BitmapDrawable) getDrawable();
         Bitmap bitmap = drawable.getBitmap();
 
-
 //        Bitmap finalBitmap = bitmap.copy(bitmap.getConfig(), true);
         Bitmap finalBitmap = Bitmap.createBitmap(bitmap, 0, 0, this.getWidth(), this.getHeight());
         Canvas canvas = new Canvas(finalBitmap);
@@ -502,7 +587,7 @@ public class MarkableImageView extends ImageView {
 
     public boolean isEdited() {
         boolean isEdited = true;
-        if (shapes.size() <= 0) {
+        if (mFreeDrawsPath.size() <= 0 && mShapes.size() <= 0) {
             isEdited = false;
         } else {
             isEdited = true;
