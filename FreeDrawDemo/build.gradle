@@ -5,8 +5,8 @@ android {
     buildToolsVersion "23.0.2"
 
     defaultConfig {
-        applicationId "com.tplink.forscrollshotdemo"
-        minSdkVersion 22
+        applicationId "com.tplink.freedrawdemo"
+        minSdkVersion 23
         targetSdkVersion 23
         versionCode 1
         versionName "1.0"

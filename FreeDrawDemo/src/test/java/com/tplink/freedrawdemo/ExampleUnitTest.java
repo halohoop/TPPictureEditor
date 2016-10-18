@@ -1,4 +1,4 @@
-package com.tplink.forscrollshotdemo;
+package com.tplink.freedrawdemo;
 
 import org.junit.Test;
 

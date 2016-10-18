@@ -1,4 +1,4 @@
-package com.tplink.forscrollshotdemo;
+package com.tplink.freedrawdemo;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;
