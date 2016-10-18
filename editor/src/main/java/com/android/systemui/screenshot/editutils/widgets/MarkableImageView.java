@@ -59,15 +59,16 @@ public class MarkableImageView extends View {
     private float widthOfArrow = 10.0f;
     private float radiusCornor = 5.0f;
 
-    public final static int MODE_FREE_DRAW = 100;
-    public final static int MODE_TEXT = MODE_FREE_DRAW + 1;
-    public final static int MODE_SHAPE = MODE_FREE_DRAW + 2;
-    public final static int MODE_MOSAIC_DRAW = MODE_FREE_DRAW + 3;
+    public final static int MODE_FREE_DRAW_PEN = 100;
+    public final static int MODE_FREE_DRAW_RUBBER = MODE_FREE_DRAW_PEN + 1;
+    public final static int MODE_TEXT = MODE_FREE_DRAW_PEN + 2;
+    public final static int MODE_SHAPE = MODE_FREE_DRAW_PEN + 3;
+    public final static int MODE_MOSAIC_DRAW = MODE_FREE_DRAW_PEN + 4;
 
     /**
      * 标识当前正在那种编辑模式
      */
-    private int mInWhichMode = MODE_FREE_DRAW;
+    private int mInWhichMode = MODE_FREE_DRAW_PEN;
     /**
      * 标识当前正在添加哪一种类型的图形（箭头，圆，方）
      */
@@ -84,6 +85,7 @@ public class MarkableImageView extends View {
     private float mShapePenStrokeWidth = 3;
     private Paint mFreePaint;
     private Paint mMosaicPaint;
+    private Paint mRubberPaint;
 
     public MarkableImageView(Context context) {
         this(context, null);
@@ -101,6 +103,8 @@ public class MarkableImageView extends View {
 
         initMosaicPaint();
 
+        initRubberPaint();
+
 //        mShapePaint.setTextSize(100.0f);
         mStartPointF = new PointF();
         mEndPointF = new PointF();
@@ -115,6 +119,17 @@ public class MarkableImageView extends View {
         mMosaicPaint.setStrokeCap(Paint.Cap.ROUND);
         mMosaicPaint.setStrokeJoin(Paint.Join.ROUND);
         mMosaicPaint.setStrokeWidth(25);
+    }
+
+    private void initRubberPaint() {
+        mRubberPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        mRubberPaint.setDither(true);
+        mRubberPaint.setAlpha(255);
+        mRubberPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.XOR));
+        mRubberPaint.setStyle(Paint.Style.STROKE);
+        mRubberPaint.setStrokeCap(Paint.Cap.ROUND);
+        mRubberPaint.setStrokeJoin(Paint.Join.ROUND);
+        mRubberPaint.setStrokeWidth(25);
     }
 
     private void initFreePaint() {
@@ -188,7 +203,7 @@ public class MarkableImageView extends View {
     public boolean dispatchTouchEvent(MotionEvent event) {
         if (mIsEditing) {
             int action = event.getAction();
-            if (mInWhichMode == MODE_FREE_DRAW) {
+            if (mInWhichMode == MODE_FREE_DRAW_PEN) {
                 handleFreeDrawModeTouch(event, action);
             } else if (mInWhichMode == MODE_SHAPE) {
                 handleShapeModeTouch(event, action);
@@ -222,7 +237,7 @@ public class MarkableImageView extends View {
                 pathBean.setStrokeWidth(mFreePaint.getStrokeWidth());
                 pathBean.setAlpha(mFreePaint.getAlpha());
                 mPathBeans.add(pathBean);
-                Action action1 = new Action(MODE_FREE_DRAW, pathBean);
+                Action action1 = new Action(MODE_FREE_DRAW_PEN, pathBean);
                 mFreeDrawAndShapeActions.add(action1);
                 break;
             case MotionEvent.ACTION_MOVE:
@@ -504,21 +519,34 @@ public class MarkableImageView extends View {
         canvas.drawBitmap(mMosaicBitmap, 0, 0, null);
         int i = canvas.saveLayer(0, 0, mBitmap.getWidth(), mBitmap.getHeight(), null);
         canvas.drawBitmap(mBitmap, 0, 0, null);
+        //马赛克只操作图片，所以画在最下面
         drawMosaicAndShapeActions(canvas);
         canvas.restoreToCount(i);
-        drawFreeDrawAndShapeActions(canvas);
+
+        i = canvas.saveLayer(0, 0, mBitmap.getWidth(), mBitmap.getHeight(), null);
+        drawFreeDrawActions(canvas);
+        canvas.restoreToCount(i);
+        drawShapeActions(canvas);
     }
 
-    private void drawFreeDrawAndShapeActions(Canvas canvas) {
+    private void drawFreeDrawActions(Canvas canvas) {
         int currentFree = 0;
+        for (int i = 0; i < mFreeDrawAndShapeActions.size(); i++) {
+            Action action = mFreeDrawAndShapeActions.get(i);
+            switch (action.mThisActionBelongWhichMode) {
+                case MODE_FREE_DRAW_PEN:
+                    //draw our lovely free draws
+                    drawFree(canvas, currentFree++);
+                    break;
+            }
+        }
+    }
+
+    private void drawShapeActions(Canvas canvas) {
         int currentShape = 0;
         for (int i = 0; i < mFreeDrawAndShapeActions.size(); i++) {
             Action action = mFreeDrawAndShapeActions.get(i);
             switch (action.mThisActionBelongWhichMode) {
-                case MODE_FREE_DRAW:
-                    //draw our lovely free draws
-                    drawFree(canvas, currentFree++);
-                    break;
                 case MODE_SHAPE:
                     //draw our lovely mShapes
                     drawShape(canvas, currentShape++);
@@ -544,7 +572,7 @@ public class MarkableImageView extends View {
         if (mFreeDrawAndShapeActions.size() > 0) {
             Action action = mFreeDrawAndShapeActions.remove(mFreeDrawAndShapeActions.size() - 1);
             pushIntoUndoRedo(action);
-            if (action.mThisActionBelongWhichMode == MODE_FREE_DRAW) {
+            if (action.mThisActionBelongWhichMode == MODE_FREE_DRAW_PEN) {
                 mPathBeans.remove(action.mPointer);
             } else if (action.mThisActionBelongWhichMode == MODE_SHAPE) {
                 mShapes.remove(action.mPointer);
@@ -559,7 +587,7 @@ public class MarkableImageView extends View {
         Action action = popFromUndoRedo();
         if (action != null) {
             mFreeDrawAndShapeActions.add(action);
-            if (action.mThisActionBelongWhichMode == MODE_FREE_DRAW) {
+            if (action.mThisActionBelongWhichMode == MODE_FREE_DRAW_PEN) {
                 mPathBeans.add((PathBean) action.mPointer);
             } else if (action.mThisActionBelongWhichMode == MODE_SHAPE) {
                 mShapes.add((Shape) action.mPointer);
@@ -763,7 +791,7 @@ public class MarkableImageView extends View {
 ////        Bitmap finalBitmap = bitmap.copy(bitmap.getConfig(), true);
 //        Bitmap finalBitmap = Bitmap.createBitmap(bitmap, 0, 0, this.getWidth(), this.getHeight());
 //        Canvas canvas = new Canvas(finalBitmap);
-//        drawFreeDrawAndShapeActions(canvas);
+//        drawFreeDrawActions(canvas);
 //
 //        try {
 //            saveFile(finalBitmap, oldFilePath);

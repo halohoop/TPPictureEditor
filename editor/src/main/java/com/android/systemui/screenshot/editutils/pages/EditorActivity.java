@@ -208,7 +208,7 @@ public class EditorActivity extends Activity implements
             mPenceilAndRubberView.setVisibility(View.GONE);
             hidePenceilAjustContainer();
         } else {
-            mMarkableimageview.setInWhichMode(MarkableImageView.MODE_FREE_DRAW);
+            mMarkableimageview.setInWhichMode(MarkableImageView.MODE_FREE_DRAW_PEN);
             mPenceilAndRubberView.setVisibility(View.VISIBLE);
             if (mPenceilAndRubberView.getMode() == PenceilAndRubberView.MODE.PENCEILON) {
                 showPenceilAjustContainer();
