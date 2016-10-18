@@ -32,7 +32,6 @@ public class MainActivity extends Activity {
 		intent.setClass(getApplicationContext(), DrawPhotoActivity.class);
 		String path = GlobalData.CameraFile + "/" + srcPath;
 		intent.putExtra(DrawPhotoActivity.FILEPATH, path);
-		// ûص
 		startActivity(intent);
 	}
 

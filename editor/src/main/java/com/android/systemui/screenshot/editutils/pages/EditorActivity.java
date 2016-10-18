@@ -11,7 +11,10 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -28,6 +31,7 @@ import android.widget.SeekBar;
 import com.android.systemui.screenshot.editutils.presenters.IEditorActivityPresenter;
 import com.android.systemui.screenshot.editutils.presenters.IEditorActivityPresenterImpls;
 import com.android.systemui.screenshot.editutils.shape.Shape;
+import com.android.systemui.screenshot.editutils.utils.BitmapUtils;
 import com.android.systemui.screenshot.editutils.widgets.ActionsChooseView;
 import com.android.systemui.screenshot.editutils.widgets.AlphaSeekBar;
 import com.android.systemui.screenshot.editutils.widgets.ColorPickerView;
@@ -48,6 +52,7 @@ public class EditorActivity extends Activity implements
         Animator.AnimatorListener,
         DialogInterface.OnClickListener {
 
+    private static final String TAG = "EditorActivity";
     private MarkableImageView mMarkableimageview;
     private PenceilAndRubberView mPenceilAndRubberView;
     private ActionsChooseView mActionsChooseView;
@@ -58,12 +63,16 @@ public class EditorActivity extends Activity implements
     private ColorShowView mColorShowViewInTextGroup;
     private ShapesChooseView mShapesChooseView;
     private ThicknessSeekBar mThicknessSeekBar;
+    private ThicknessSeekBar mRubberThicknessSeekBar;
+    private ThicknessSeekBar mMosaicThicknessSeekBar;
     private AlphaSeekBar mAlphaSeekBar;
     private LinearLayout mShapesContainer;
     private ImageView mIvCancel;
     private FrameLayout mToolsDetailContainer;
     private LinearLayout mPenceilAjustContainer;
     private RelativeLayout mTextDetailContainer;
+    private FrameLayout mRubberAjustContainer;
+    private FrameLayout mMosaicAjustContainer;
 
     /**
      * mark that is the animation is end to act sth
@@ -73,6 +82,16 @@ public class EditorActivity extends Activity implements
     private EditText mEtTextAdd;
     private View mTextAddContainer;
     private String mFilePath;
+    private static final int MOSAIC_BITMAP_DONE = 100;
+    private Handler mHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            if (msg.what == MOSAIC_BITMAP_DONE) {
+                Bitmap bitmap = (Bitmap) msg.obj;
+                mMarkableimageview.setImageBitmap(bitmap);
+            }
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,7 +102,7 @@ public class EditorActivity extends Activity implements
         handleIntentDataIfExist();
         mIvCancel = (ImageView) findViewById(R.id.iv_cancel);
         findViewById(R.id.iv_stepbackward).setOnClickListener(this);
-       findViewById(R.id.iv_stepforward).setOnClickListener(this);
+        findViewById(R.id.iv_stepforward).setOnClickListener(this);
         mPenceilAndRubberView = (PenceilAndRubberView) findViewById(R.id.penceil_and_rubber_view);
         mActionsChooseView = (ActionsChooseView) findViewById(R.id.actions_choose_view);
         mShapesChooseView = (ShapesChooseView) findViewById(R.id.shapes_choose_view);
@@ -98,6 +117,12 @@ public class EditorActivity extends Activity implements
         mPenceilAjustContainer = (LinearLayout) findViewById(R.id.penceil_ajust_container);
         mTextDetailContainer = (RelativeLayout) findViewById(R.id.text_detail_container);
         mShapesContainer = (LinearLayout) findViewById(R.id.shapes_container);
+        mRubberAjustContainer = (FrameLayout) findViewById(R.id.rubber_ajust_container);
+        mRubberThicknessSeekBar = (ThicknessSeekBar) mRubberAjustContainer.findViewById(R.id
+        .rubber_thickness_seek_bar);
+        mMosaicAjustContainer = (FrameLayout) findViewById(R.id.mosaic_ajust_container);
+        mMosaicThicknessSeekBar = (ThicknessSeekBar) mMosaicAjustContainer.findViewById(R.id
+        .mosaic_thickness_seek_bar);
         mToolsDetailContainer = (FrameLayout) findViewById(R.id.tools_detail_container);
         mTextAddContainer = findViewById(R.id.text_add_container);
         mIvAddText = (ImageView) findViewById(R.id.iv_add_text);
@@ -119,6 +144,8 @@ public class EditorActivity extends Activity implements
         mShapesChooseView.setAnimationEndMarkHelper(mIEditorActivityPresenter);
         mThicknessSeekBar.setOnSeekBarChangeListener(this);
         mAlphaSeekBar.setOnSeekBarChangeListener(this);
+        mRubberThicknessSeekBar.setOnSeekBarChangeListener(this);
+        mMosaicThicknessSeekBar.setOnSeekBarChangeListener(this);
         initView();
     }
 
@@ -129,8 +156,19 @@ public class EditorActivity extends Activity implements
             finish();
             return;
         }
-        Bitmap bitmap = BitmapFactory.decodeFile(mFilePath);
-        mMarkableimageview.setImageBitmap(bitmap);
+        new Thread() {
+            @Override
+            public void run() {
+                Bitmap bitmap = BitmapFactory.decodeFile(mFilePath);
+                Bitmap mosaicBitmap = BitmapUtils.mosaicIt(bitmap, 10);
+                mMarkableimageview.setMosaicBitmap(mosaicBitmap);
+
+                Message message = new Message();
+                message.obj = bitmap;
+                message.what = MOSAIC_BITMAP_DONE;
+                mHandler.sendMessage(message);
+            }
+        }.start();
     }
 
     private void initView() {
@@ -146,10 +184,13 @@ public class EditorActivity extends Activity implements
     @Override
     public void onModeSelected(PenceilAndRubberView.MODE mode) {
         if (mode == PenceilAndRubberView.MODE.PENCEILON) {
-            animationToShowToolsDetailVertical();
+//            animationToShowToolsDetailVertical();
             showPenceilAjustContainer();
+            hideRubberDetailContainer();
         } else if (mode == PenceilAndRubberView.MODE.RUBBERON) {
-            animationToHideToolsDetailVertical();
+            hidePenceilAjustContainer();
+            showRubberDetailContainer();
+//            animationToHideToolsDetailVertical();
         }
     }
 
@@ -169,13 +210,13 @@ public class EditorActivity extends Activity implements
             if (mPenceilAndRubberView.getMode() == PenceilAndRubberView.MODE.PENCEILON) {
                 showPenceilAjustContainer();
             } else {
-                animationToHideToolsDetailVertical();
+//                animationToHideToolsDetailVertical();
             }
         }
         if (index == 1) {
             mMarkableimageview.setInWhichMode(MarkableImageView.MODE_TEXT);
             //animation to show the shape layout
-            animationToShowToolsDetailVertical();
+//            animationToShowToolsDetailVertical();
             showTextDetailContainer();
         } else {
             hideTextDetailContainer();
@@ -183,7 +224,7 @@ public class EditorActivity extends Activity implements
         if (index == 2) {
             mMarkableimageview.setInWhichMode(MarkableImageView.MODE_SHAPE);
             //animation to show the shape layout
-            animationToShowToolsDetailVertical();
+//            animationToShowToolsDetailVertical();
             showShapesContainer();
         } else {
             hideShapesContainer();
@@ -191,10 +232,12 @@ public class EditorActivity extends Activity implements
         if (index == 3) {
             mMarkableimageview.setInWhichMode(MarkableImageView.MODE_MOSAIC_DRAW);
             //mosaic action
-            animationToHideToolsDetailVertical();
+//            animationToHideToolsDetailVertical();
+            showMosaicDetailContainer();
         } else {
+            hideMosaicDetailContainer();
             if (mPenceilAndRubberView.getMode() == PenceilAndRubberView.MODE.PENCEILON) {
-                animationToShowToolsDetailVertical();
+//                animationToShowToolsDetailVertical();
             }
         }
     }
@@ -246,6 +289,44 @@ public class EditorActivity extends Activity implements
                 mTextDetailContainer.setVisibility(View.VISIBLE);
             }
             animationToShowToolsDetailChildHorizontal(mTextDetailContainer);
+        }
+    }
+
+    private boolean mIsRubberDetailContainerVisible = false;
+
+    private void hideRubberDetailContainer() {
+        if (mIsRubberDetailContainerVisible) {
+            mIsRubberDetailContainerVisible = false;
+            animationToHideToolsDetailChildHorizontal(mRubberAjustContainer);
+        }
+    }
+
+    private void showRubberDetailContainer() {
+        if (!mIsRubberDetailContainerVisible) {
+            mIsRubberDetailContainerVisible = true;
+            if (mRubberAjustContainer.getVisibility() != View.VISIBLE) {
+                mRubberAjustContainer.setVisibility(View.VISIBLE);
+            }
+            animationToShowToolsDetailChildHorizontal(mRubberAjustContainer);
+        }
+    }
+
+
+    private boolean mIsMosaicDetailContainerVisible = false;
+    private void hideMosaicDetailContainer() {
+        if (mIsMosaicDetailContainerVisible) {
+            mIsMosaicDetailContainerVisible = false;
+            animationToHideToolsDetailChildHorizontal(mMosaicAjustContainer);
+        }
+    }
+
+    private void showMosaicDetailContainer() {
+        if (!mIsMosaicDetailContainerVisible) {
+            mIsMosaicDetailContainerVisible = true;
+            if (mMosaicAjustContainer.getVisibility() != View.VISIBLE) {
+                mMosaicAjustContainer.setVisibility(View.VISIBLE);
+            }
+            animationToShowToolsDetailChildHorizontal(mMosaicAjustContainer);
         }
     }
 
@@ -423,6 +504,10 @@ public class EditorActivity extends Activity implements
             mMarkableimageview.changeFreeDrawPaintThickness(progress);
         } else if (seekBar == mAlphaSeekBar) {
             mMarkableimageview.changeFreeDrawPaintAlpha(progress);
+        } else if (seekBar == mRubberThicknessSeekBar) {
+            mMarkableimageview.changeRubberDrawPaintAlpha(progress);
+        } else if (seekBar == mMosaicThicknessSeekBar) {
+            mMarkableimageview.changeMosaicDrawPaintAlpha(progress);
         }
     }
 

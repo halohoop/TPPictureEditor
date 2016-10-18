@@ -33,12 +33,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 /**
- * б༭Ľ
- * 
+ *
  **/
 
 public class DrawPhotoActivity extends Activity {
-	/** ݶ,Ϊtakephoto ʾ򴫵· */
 	public static final String FILEPATH = "filepath";
 	public static final String ACTION = "action";
 	public static final String ACTION_INIT = "action_init";
@@ -46,34 +44,24 @@ public class DrawPhotoActivity extends Activity {
 
 	public static final String FROM = "from";
 
-	/**  */
 	public static final String TAKEPHOTO = "takephoto";
 
 	public static final String REDRAW = "ReDraw";
 
-	/** Ϳѻؼ **/
 	public LinearLayout imageContent;
-	/** · **/
 	private String filePath = "";
-	/** Ϳѻؼ **/
 	private MosaicImageView touchView;
-	/** ɰť **/
 	public TextView overBt;
-	/** ذťϽǣ*/
 	public ImageButton backIB = null;
-	/** ɰťϽǣ*/
 	public Button finishBtn = null;
-	/**  **/
 	public TextView cancelText;
 	private GetImage handler;
 	private ProgressDialog progressDialog = null;
-	/** ǷΪͿѻ Ϳѻ ɾ֮ǰ **/
 	public boolean isReDraw = false;
 	Intent intent = null;
 	public Context context;
 	public BroadcastReceiver broadcastReceiver = null;
 
-	/** صӿ */
 	private SeekBar seekBar;
 	@SuppressLint("NewApi")
 	@Override
@@ -82,7 +70,6 @@ public class DrawPhotoActivity extends Activity {
 		setContentView(R.layout.draw_photo);
 		initView();
 		context = this;
-		// ȡ·
 		intent = getIntent();
 		broadcastReceiver = new BroadcastReceiver(){
 			public void onReceive(Context context, Intent intent) {
@@ -115,7 +102,7 @@ public class DrawPhotoActivity extends Activity {
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		if (resultCode == 0)// ؼ ûȡ
+		if (resultCode == 0)
 			finish();
 		if (requestCode != 1)
 			finish();
@@ -124,14 +111,13 @@ public class DrawPhotoActivity extends Activity {
 			try {
 				BitmapFactory.Options newOpts = new BitmapFactory.Options();
 				// ʼʱoptions.inJustDecodeBounds true
-				newOpts.inPreferredConfig = Bitmap.Config.RGB_565;// ʾ16λλ
+				newOpts.inPreferredConfig = Bitmap.Config.RGB_565;
 				newOpts.inInputShareable = true;
-				newOpts.inPurgeable = true;// Ա
+				newOpts.inPurgeable = true;
 				newOpts.inJustDecodeBounds = false;
-				// ȡصݣתΪʽ
 				newOpts.inSampleSize = 2;
 				Bitmap bitmap = BitmapFactory.decodeFile(
-						GlobalData.CameraPhoto, newOpts);// ȡ·ϵļ
+						GlobalData.CameraPhoto, newOpts);
 				String ddr = GlobalData.tempImagePaht;
 				File ddrfile = new File(ddr);
 				if (!ddrfile.exists()) {
@@ -142,18 +128,17 @@ public class DrawPhotoActivity extends Activity {
 				File file = new File(fileName);
 				BufferedOutputStream bos = new BufferedOutputStream(
 						new FileOutputStream(file));
-				// жǷת
 				ExifInterface exif = new ExifInterface(GlobalData.CameraPhoto);
 				int orientation = exif.getAttributeInt(
 						ExifInterface.TAG_ORIENTATION, 0);
 				// ʹʾ
 				bitmap = ImageUtil.getTotateBitmap(bitmap, orientation);
-				bitmap.compress(Bitmap.CompressFormat.JPEG, 80, bos);// ѹ
-				bos.flush();//
-				bos.close();// ر
-				bitmap.recycle();//
+				bitmap.compress(Bitmap.CompressFormat.JPEG, 80, bos);
+				bos.flush();
+				bos.close();
+				bitmap.recycle();
 				bitmap = null;
-				System.gc(); // ϵͳʱ
+				System.gc();
 				filePath = fileName;
 				intent.putExtra("action", filePath);
 				if (filePath != null && !filePath.equals("")) {
@@ -247,7 +232,6 @@ public class DrawPhotoActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				overBt.setEnabled(false);
-				// ½һļ
 				File f = new File(GlobalData.tempImagePaht + "/"
 						+ System.currentTimeMillis() + ".jpg");
 				if (!f.exists()) {
@@ -263,14 +247,13 @@ public class DrawPhotoActivity extends Activity {
 				}
 				try {
 					Bitmap saveBitmap = touchView.combineBitmap(touchView.sourceBitmapCopy, touchView.sourceBitmap);
-					ImageUtil.saveMyBitmap(f, saveBitmap);// ´SD
+					ImageUtil.saveMyBitmap(f, saveBitmap);
 					if (touchView.sourceBitmapCopy != null) {
 						touchView.sourceBitmapCopy.recycle();
 					}
 					touchView.sourceBitmap.recycle();
 					saveBitmap.recycle();
 					touchView.destroyDrawingCache();
-					// ɾTempѾе
 					if (!TextUtils.isEmpty(filePath)
 							&& filePath.contains(GlobalData.tempImagePaht)) {
 						new File(filePath).delete();
@@ -278,7 +261,7 @@ public class DrawPhotoActivity extends Activity {
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
-				Toast.makeText(DrawPhotoActivity.this, "ѱSDMosaicImageView/TempĿ¼", Toast.LENGTH_LONG).show();
+				Toast.makeText(DrawPhotoActivity.this, "SDMosaicImageView/Temp", Toast.LENGTH_LONG).show();
 				finish();
 			}
 		});
@@ -297,10 +280,9 @@ public class DrawPhotoActivity extends Activity {
 	public void cancelDrawImage() {
 			touchView.destroyDrawingCache();
 			WindowManager manager = DrawPhotoActivity.this.getWindowManager();
-			int ww = manager.getDefaultDisplay().getWidth();// ø߶
-			int hh = manager.getDefaultDisplay().getHeight();// ÿΪ
+			int ww = manager.getDefaultDisplay().getWidth();
+			int hh = manager.getDefaultDisplay().getHeight();
 			touchView.revocation(filePath, ww, hh);
-			// OME--
 			if(imageContent.getChildCount() == 0){
 				imageContent.addView(touchView);
 			}
@@ -331,9 +313,7 @@ public class DrawPhotoActivity extends Activity {
 			}
 				break;
 			case 2: {
-				// ȡµ·
 				filePath = (String) msg.obj;
-				// ʹ߳
 				ImageThread thread = new ImageThread();
 				thread.start();
 			}
@@ -354,15 +334,12 @@ public class DrawPhotoActivity extends Activity {
 	private class ImageThread extends Thread {
 		@SuppressWarnings("deprecation")
 		public void run() {
-			// 򿪽
 			Message msg = new Message();
 			msg.what = 0;
 			handler.sendMessage(msg);
-			// ȡĻС
 			WindowManager manager = DrawPhotoActivity.this.getWindowManager();
-			int ww = manager.getDefaultDisplay().getWidth();// ø߶
-			int hh = manager.getDefaultDisplay().getHeight();// ÿΪ
-			// ɻ
+			int ww = manager.getDefaultDisplay().getWidth();
+			int hh = manager.getDefaultDisplay().getHeight();
 			touchView = new MosaicImageView(DrawPhotoActivity.this, null, filePath, ww, hh);
 			Message msg1 = new Message();
 			msg1.what = 1;

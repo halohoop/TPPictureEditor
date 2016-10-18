@@ -54,6 +54,7 @@ public class ThicknessSeekBar extends SeekBar {
         mPath = new Path();
         mRadius = 0;
         mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        mPaint.setDither(true);
         mPaint.setColor(mProgressColor);
     }
 

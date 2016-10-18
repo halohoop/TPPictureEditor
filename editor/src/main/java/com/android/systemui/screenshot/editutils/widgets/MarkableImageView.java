@@ -19,13 +19,15 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PointF;
-import android.graphics.drawable.BitmapDrawable;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
-import android.widget.ImageView;
+import android.view.View;
 import android.widget.Toast;
 
+import com.android.systemui.screenshot.editutils.shape.MosaicPathBean;
 import com.android.systemui.screenshot.editutils.shape.PathBean;
 import com.android.systemui.screenshot.editutils.shape.Shape;
 
@@ -36,7 +38,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MarkableImageView extends ImageView {
+public class MarkableImageView extends View {
 
     final String TAG = "huanghaiqi";
     /**
@@ -75,11 +77,14 @@ public class MarkableImageView extends ImageView {
     private List<Action> mActions = new ArrayList<>();
     private List<Shape> mShapes = new ArrayList<>();
     private List<PathBean> mPathBeans = new ArrayList<>();
+    private List<MosaicPathBean> mMosaicPathBeans = new ArrayList<>();
 
     private float mDisX;
     private float mDisY;
     private float mShapePenStrokeWidth = 3;
     private Paint mFreePaint;
+    private Paint mMosaicPaint;
+    private Canvas mMainBitmapCanvas;
 
     public MarkableImageView(Context context) {
         this(context, null);
@@ -91,19 +96,45 @@ public class MarkableImageView extends ImageView {
 
     public MarkableImageView(Context context, AttributeSet attr, int defStyle) {
         super(context, attr, defStyle);
-        mShapePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        mFreePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        initShapePaint();
+
+        initFreePaint();
+
+        initMosaicPaint();
+
 //        mShapePaint.setTextSize(100.0f);
-        mShapePaint.setColor(Color.BLACK);
-        mFreePaint.setColor(Color.BLACK);
-        mShapePaint.setStrokeCap(Paint.Cap.ROUND);
-        mFreePaint.setStrokeCap(Paint.Cap.ROUND);
-        mFreePaint.setStyle(Paint.Style.STROKE);
-        mShapePaint.setStyle(Paint.Style.FILL);
-        mShapePaint.setStrokeWidth(mShapePenStrokeWidth);
-        mFreePaint.setStrokeWidth(1);
         mStartPointF = new PointF();
         mEndPointF = new PointF();
+    }
+
+    private void initMosaicPaint() {
+        mMosaicPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        mMosaicPaint.setDither(true);
+        mMosaicPaint.setAlpha(0);
+        mMosaicPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_IN));
+        mMosaicPaint.setStyle(Paint.Style.STROKE);
+        mMosaicPaint.setStrokeCap(Paint.Cap.ROUND);
+        mMosaicPaint.setStrokeJoin(Paint.Join.ROUND);
+        mMosaicPaint.setStrokeWidth(25);
+    }
+
+    private void initFreePaint() {
+        mFreePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        mFreePaint.setDither(true);
+        mFreePaint.setStrokeJoin(Paint.Join.ROUND);
+        mFreePaint.setColor(Color.BLACK);
+        mFreePaint.setStrokeCap(Paint.Cap.ROUND);
+        mFreePaint.setStyle(Paint.Style.STROKE);
+        mFreePaint.setStrokeJoin(Paint.Join.ROUND);
+        mFreePaint.setStrokeWidth(1);
+    }
+
+    private void initShapePaint() {
+        mShapePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        mShapePaint.setColor(Color.BLACK);
+        mShapePaint.setStrokeCap(Paint.Cap.ROUND);
+        mShapePaint.setStyle(Paint.Style.FILL);
+        mShapePaint.setStrokeWidth(mShapePenStrokeWidth);
     }
 
     public void setNowAddingShapeType(Shape.ShapeType mNowAddingWhat) {
@@ -111,8 +142,30 @@ public class MarkableImageView extends ImageView {
     }
 
     public void changePaintColor(int color) {
+        int alpha = mFreePaint.getAlpha();
         mFreePaint.setColor(color);
+        mFreePaint.setAlpha(alpha);
         mShapePaint.setColor(color);
+    }
+
+    private Bitmap mBitmap;
+    private Bitmap mMosaicBitmap;
+
+    public void setMosaicBitmap(Bitmap mosaicBitmap) {
+        this.mMosaicBitmap = mosaicBitmap;
+    }
+
+    public void setImageBitmap(Bitmap bitmap) {
+        if (!bitmap.isMutable()) {
+            this.mBitmap = Bitmap.createBitmap(bitmap.getWidth(), bitmap.getHeight(), Bitmap.Config
+                    .ARGB_8888);
+            mMainBitmapCanvas = new Canvas(mBitmap);
+            mMainBitmapCanvas.drawBitmap(bitmap, 0, 0, null);
+            bitmap.recycle();
+        } else {
+            this.mBitmap = bitmap;
+        }
+        invalidate();
     }
 
     public void changeFreeDrawPaintThickness(int thickness) {
@@ -132,6 +185,8 @@ public class MarkableImageView extends ImageView {
                 handleFreeDrawModeTouch(event, action);
             } else if (mInWhichMode == MODE_SHAPE) {
                 handleShapeModeTouch(event, action);
+            } else if (mInWhichMode == MODE_MOSAIC_DRAW) {
+                handleMosaicDrawModeTouch(event, action);
             }
             return true;
         } else {
@@ -225,6 +280,47 @@ public class MarkableImageView extends ImageView {
                 invalidate();
                 break;
         }
+    }
+
+    private void handleMosaicDrawModeTouch(MotionEvent event, int action) {
+        float x = event.getX();
+        float y = event.getY();
+        switch (action) {
+            case MotionEvent.ACTION_DOWN:
+                MosaicPathBean mosaicPathBean = new MosaicPathBean();
+                Path newPath = new Path();
+                newPath.moveTo(x, y);
+                mosaicPathBean.setPath(newPath);
+                mosaicPathBean.setStrokeWidth(mMosaicPaint.getStrokeWidth());
+                mMosaicPathBeans.add(mosaicPathBean);
+                Action action1 = new Action(MODE_MOSAIC_DRAW, mosaicPathBean);
+                mActions.add(action1);
+                break;
+            case MotionEvent.ACTION_MOVE:
+                MosaicPathBean mosaicPathBeanMove = mMosaicPathBeans.get(mMosaicPathBeans.size()
+                        - 1);
+                if (mosaicPathBeanMove != null) {
+                    mosaicPathBeanMove.setIsAvailable(true);
+                    Path path = mosaicPathBeanMove.getPath();
+                    path.quadTo(x, y, x, y);
+                    mMainBitmapCanvas.drawPath(path, mMosaicPaint);
+                }
+                break;
+            case MotionEvent.ACTION_UP:
+                MosaicPathBean mosaicPathBeanUp = mMosaicPathBeans.get(mMosaicPathBeans.size() - 1);
+                if (mosaicPathBeanUp != null) {
+                    Path path = mosaicPathBeanUp.getPath();
+                    path.quadTo(x, y, x, y);
+                    mMainBitmapCanvas.drawPath(path, mMosaicPaint);
+                }
+                boolean isAvailable = mosaicPathBeanUp.isIsAvailable();
+                if (!isAvailable) {
+                    mMosaicPathBeans.remove(mosaicPathBeanUp);
+                    mActions.remove(mActions.size() - 1);
+                }
+                break;
+        }
+        invalidate();
     }
 
     private void updateDistanceXY() {
@@ -396,14 +492,19 @@ public class MarkableImageView extends ImageView {
 
     @Override
     protected void onDraw(Canvas canvas) {
+        if (mBitmap == null || mMosaicBitmap == null) {
+            return;
+        }
         //draw picture
-        super.onDraw(canvas);
+        canvas.drawBitmap(mMosaicBitmap, 0, 0, null);
+        canvas.drawBitmap(mBitmap, 0, 0, null);
         drawEveryActions(canvas);
     }
 
     private void drawEveryActions(Canvas canvas) {
         int currentFree = 0;
         int currentShape = 0;
+        int currentMosaicShape = 0;
         for (int i = 0; i < mActions.size(); i++) {
             Action action = mActions.get(i);
             switch (action.mThisActionBelongWhichMode) {
@@ -415,10 +516,13 @@ public class MarkableImageView extends ImageView {
                     //draw our lovely mShapes
                     drawShape(canvas, currentShape++);
                     break;
+//                case MODE_MOSAIC_DRAW:
+//                    //draw our lovely mosaic path
+//                    drawMosaic(canvas, currentMosaicShape++);
+//                    break;
             }
         }
         //TODO draw our lovely text
-        //TODO draw our lovely mosaic
     }
 
     public void undo() {
@@ -429,6 +533,8 @@ public class MarkableImageView extends ImageView {
                 mPathBeans.remove(action.mPointer);
             } else if (action.mThisActionBelongWhichMode == MODE_SHAPE) {
                 mShapes.remove(action.mPointer);
+            } else if (action.mThisActionBelongWhichMode == MODE_MOSAIC_DRAW) {
+                mMosaicPathBeans.remove(action.mPointer);
             }
             invalidate();
         }
@@ -442,6 +548,8 @@ public class MarkableImageView extends ImageView {
                 mPathBeans.add((PathBean) action.mPointer);
             } else if (action.mThisActionBelongWhichMode == MODE_SHAPE) {
                 mShapes.add((Shape) action.mPointer);
+            } else if (action.mThisActionBelongWhichMode == MODE_MOSAIC_DRAW) {
+                mMosaicPathBeans.add((MosaicPathBean) action.mPointer);
             }
             invalidate();
         }
@@ -474,6 +582,19 @@ public class MarkableImageView extends ImageView {
             mFreePaint.setColor(pathBean.getColor());
             mFreePaint.setStrokeWidth(pathBean.getStrokeWidth());
             canvas.drawPath(path, mFreePaint);
+        } catch (IndexOutOfBoundsException ex) {
+            if (mAllowLog) {
+                Log.i(TAG, "drawFree: IndexOutOfBoundsException appear");
+            }
+        }
+    }
+
+    private void drawMosaic(Canvas canvas, int currentDrawIndex) {
+        try {
+            MosaicPathBean mosaicPathBean = mMosaicPathBeans.get(currentDrawIndex);
+            Path path = mosaicPathBean.getPath();
+            mMosaicPaint.setStrokeWidth(mosaicPathBean.getStrokeWidth());
+            canvas.drawPath(path, mMosaicPaint);
         } catch (IndexOutOfBoundsException ex) {
             if (mAllowLog) {
                 Log.i(TAG, "drawFree: IndexOutOfBoundsException appear");
@@ -621,24 +742,24 @@ public class MarkableImageView extends ImageView {
     }
 
     public void saveImageToFile(String oldFilePath) {
-        BitmapDrawable drawable = (BitmapDrawable) getDrawable();
-        Bitmap bitmap = drawable.getBitmap();
-
-//        Bitmap finalBitmap = bitmap.copy(bitmap.getConfig(), true);
-        Bitmap finalBitmap = Bitmap.createBitmap(bitmap, 0, 0, this.getWidth(), this.getHeight());
-        Canvas canvas = new Canvas(finalBitmap);
-        drawEveryActions(canvas);
-
-        try {
-            saveFile(finalBitmap, oldFilePath);
-        } catch (IOException e) {
-            Log.e("huanghaiqi", "huanghaiqi 保存文件失败!");
-            e.printStackTrace();
-        } finally {
-//            if (finalBitmap != null && !finalBitmap.isRecycled()) {
-//                finalBitmap.recycle();
-//            }
-        }
+//        BitmapDrawable drawable = (BitmapDrawable) getDrawable();
+//        Bitmap bitmap = drawable.getBitmap();
+//
+////        Bitmap finalBitmap = bitmap.copy(bitmap.getConfig(), true);
+//        Bitmap finalBitmap = Bitmap.createBitmap(bitmap, 0, 0, this.getWidth(), this.getHeight());
+//        Canvas canvas = new Canvas(finalBitmap);
+//        drawEveryActions(canvas);
+//
+//        try {
+//            saveFile(finalBitmap, oldFilePath);
+//        } catch (IOException e) {
+//            Log.e("huanghaiqi", "huanghaiqi 保存文件失败!");
+//            e.printStackTrace();
+//        } finally {
+////            if (finalBitmap != null && !finalBitmap.isRecycled()) {
+////                finalBitmap.recycle();
+////            }
+//        }
     }
 
     /**
@@ -679,6 +800,14 @@ public class MarkableImageView extends ImageView {
         }
         //TODO else
         return isEdited;
+    }
+
+    public void changeRubberDrawPaintAlpha(int progress) {
+        //TODO
+    }
+
+    public void changeMosaicDrawPaintAlpha(int progress) {
+        mMosaicPaint.setStrokeWidth(progress);
     }
 
     private class Action {
