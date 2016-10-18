@@ -74,7 +74,7 @@ public class MarkableImageView extends View {
     private Shape.ShapeType mNowAddingWhatForShapeMode = Shape.ShapeType.CIRCLE;
 
     //drawing data list
-    private List<Action> mActions = new ArrayList<>();
+    private List<Action> mFreeDrawAndShapeActions = new ArrayList<>();
     private List<Shape> mShapes = new ArrayList<>();
     private List<PathBean> mPathBeans = new ArrayList<>();
     private List<MosaicPathBean> mMosaicPathBeans = new ArrayList<>();
@@ -84,7 +84,6 @@ public class MarkableImageView extends View {
     private float mShapePenStrokeWidth = 3;
     private Paint mFreePaint;
     private Paint mMosaicPaint;
-    private Canvas mMainBitmapCanvas;
 
     public MarkableImageView(Context context) {
         this(context, null);
@@ -110,8 +109,8 @@ public class MarkableImageView extends View {
     private void initMosaicPaint() {
         mMosaicPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mMosaicPaint.setDither(true);
-        mMosaicPaint.setAlpha(0);
-        mMosaicPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_IN));
+        mMosaicPaint.setAlpha(255);
+        mMosaicPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.XOR));
         mMosaicPaint.setStyle(Paint.Style.STROKE);
         mMosaicPaint.setStrokeCap(Paint.Cap.ROUND);
         mMosaicPaint.setStrokeJoin(Paint.Join.ROUND);
@@ -152,15 +151,23 @@ public class MarkableImageView extends View {
     private Bitmap mMosaicBitmap;
 
     public void setMosaicBitmap(Bitmap mosaicBitmap) {
-        this.mMosaicBitmap = mosaicBitmap;
+        if (!mosaicBitmap.isMutable()) {
+            this.mMosaicBitmap = Bitmap.createBitmap(mosaicBitmap.getWidth(), mosaicBitmap.getHeight(), Bitmap.Config
+                    .ARGB_8888);
+            Canvas canvas = new Canvas(mMosaicBitmap);
+            canvas.drawBitmap(mosaicBitmap, 0, 0, null);
+            mosaicBitmap.recycle();
+        } else {
+            this.mBitmap = mosaicBitmap;
+        }
     }
 
     public void setImageBitmap(Bitmap bitmap) {
         if (!bitmap.isMutable()) {
             this.mBitmap = Bitmap.createBitmap(bitmap.getWidth(), bitmap.getHeight(), Bitmap.Config
                     .ARGB_8888);
-            mMainBitmapCanvas = new Canvas(mBitmap);
-            mMainBitmapCanvas.drawBitmap(bitmap, 0, 0, null);
+            Canvas canvas = new Canvas(mBitmap);
+            canvas.drawBitmap(bitmap, 0, 0, null);
             bitmap.recycle();
         } else {
             this.mBitmap = bitmap;
@@ -216,7 +223,7 @@ public class MarkableImageView extends View {
                 pathBean.setAlpha(mFreePaint.getAlpha());
                 mPathBeans.add(pathBean);
                 Action action1 = new Action(MODE_FREE_DRAW, pathBean);
-                mActions.add(action1);
+                mFreeDrawAndShapeActions.add(action1);
                 break;
             case MotionEvent.ACTION_MOVE:
                 PathBean pathBeanMove = mPathBeans.get(mPathBeans.size() - 1);
@@ -236,7 +243,7 @@ public class MarkableImageView extends View {
                 boolean isAvailable = pathBeanUp.isIsAvailable();
                 if (!isAvailable) {
                     mPathBeans.remove(pathBeanUp);
-                    mActions.remove(mActions.size() - 1);
+                    mFreeDrawAndShapeActions.remove(mFreeDrawAndShapeActions.size() - 1);
                 }
                 invalidate();
                 break;
@@ -253,7 +260,7 @@ public class MarkableImageView extends View {
                 initShapeType();
                 Shape shape1 = mShapes.get(mShapes.size() - 1);
                 Action nowAddingWhichAction = new Action(MODE_SHAPE, shape1);
-                mActions.add(nowAddingWhichAction);
+                mFreeDrawAndShapeActions.add(nowAddingWhichAction);
 
                 break;
             case MotionEvent.ACTION_MOVE:
@@ -275,7 +282,7 @@ public class MarkableImageView extends View {
                 boolean isAvailable = shape.isAvailable();
                 if (!isAvailable) {
                     mPathBeans.remove(shape);
-                    mActions.remove(mActions.size() - 1);
+                    mFreeDrawAndShapeActions.remove(mFreeDrawAndShapeActions.size() - 1);
                 }
                 invalidate();
                 break;
@@ -294,7 +301,7 @@ public class MarkableImageView extends View {
                 mosaicPathBean.setStrokeWidth(mMosaicPaint.getStrokeWidth());
                 mMosaicPathBeans.add(mosaicPathBean);
                 Action action1 = new Action(MODE_MOSAIC_DRAW, mosaicPathBean);
-                mActions.add(action1);
+                mFreeDrawAndShapeActions.add(action1);
                 break;
             case MotionEvent.ACTION_MOVE:
                 MosaicPathBean mosaicPathBeanMove = mMosaicPathBeans.get(mMosaicPathBeans.size()
@@ -303,7 +310,6 @@ public class MarkableImageView extends View {
                     mosaicPathBeanMove.setIsAvailable(true);
                     Path path = mosaicPathBeanMove.getPath();
                     path.quadTo(x, y, x, y);
-                    mMainBitmapCanvas.drawPath(path, mMosaicPaint);
                 }
                 break;
             case MotionEvent.ACTION_UP:
@@ -311,12 +317,11 @@ public class MarkableImageView extends View {
                 if (mosaicPathBeanUp != null) {
                     Path path = mosaicPathBeanUp.getPath();
                     path.quadTo(x, y, x, y);
-                    mMainBitmapCanvas.drawPath(path, mMosaicPaint);
                 }
                 boolean isAvailable = mosaicPathBeanUp.isIsAvailable();
                 if (!isAvailable) {
                     mMosaicPathBeans.remove(mosaicPathBeanUp);
-                    mActions.remove(mActions.size() - 1);
+                    mFreeDrawAndShapeActions.remove(mFreeDrawAndShapeActions.size() - 1);
                 }
                 break;
         }
@@ -497,16 +502,18 @@ public class MarkableImageView extends View {
         }
         //draw picture
         canvas.drawBitmap(mMosaicBitmap, 0, 0, null);
+        int i = canvas.saveLayer(0, 0, mBitmap.getWidth(), mBitmap.getHeight(), null);
         canvas.drawBitmap(mBitmap, 0, 0, null);
-        drawEveryActions(canvas);
+        drawMosaicAndShapeActions(canvas);
+        canvas.restoreToCount(i);
+        drawFreeDrawAndShapeActions(canvas);
     }
 
-    private void drawEveryActions(Canvas canvas) {
+    private void drawFreeDrawAndShapeActions(Canvas canvas) {
         int currentFree = 0;
         int currentShape = 0;
-        int currentMosaicShape = 0;
-        for (int i = 0; i < mActions.size(); i++) {
-            Action action = mActions.get(i);
+        for (int i = 0; i < mFreeDrawAndShapeActions.size(); i++) {
+            Action action = mFreeDrawAndShapeActions.get(i);
             switch (action.mThisActionBelongWhichMode) {
                 case MODE_FREE_DRAW:
                     //draw our lovely free draws
@@ -516,18 +523,26 @@ public class MarkableImageView extends View {
                     //draw our lovely mShapes
                     drawShape(canvas, currentShape++);
                     break;
-//                case MODE_MOSAIC_DRAW:
-//                    //draw our lovely mosaic path
-//                    drawMosaic(canvas, currentMosaicShape++);
-//                    break;
             }
         }
-        //TODO draw our lovely text
+    }
+
+    private void drawMosaicAndShapeActions(Canvas canvas) {
+        int currentMosaicShape = 0;
+        for (int i = 0; i < mFreeDrawAndShapeActions.size(); i++) {
+            Action action = mFreeDrawAndShapeActions.get(i);
+            switch (action.mThisActionBelongWhichMode) {
+                case MODE_MOSAIC_DRAW:
+                    //draw our lovely mosaic path
+                    drawMosaic(canvas, currentMosaicShape++);
+                    break;
+            }
+        }
     }
 
     public void undo() {
-        if (mActions.size() > 0) {
-            Action action = mActions.remove(mActions.size() - 1);
+        if (mFreeDrawAndShapeActions.size() > 0) {
+            Action action = mFreeDrawAndShapeActions.remove(mFreeDrawAndShapeActions.size() - 1);
             pushIntoUndoRedo(action);
             if (action.mThisActionBelongWhichMode == MODE_FREE_DRAW) {
                 mPathBeans.remove(action.mPointer);
@@ -543,7 +558,7 @@ public class MarkableImageView extends View {
     public void redo() {
         Action action = popFromUndoRedo();
         if (action != null) {
-            mActions.add(action);
+            mFreeDrawAndShapeActions.add(action);
             if (action.mThisActionBelongWhichMode == MODE_FREE_DRAW) {
                 mPathBeans.add((PathBean) action.mPointer);
             } else if (action.mThisActionBelongWhichMode == MODE_SHAPE) {
@@ -748,7 +763,7 @@ public class MarkableImageView extends View {
 ////        Bitmap finalBitmap = bitmap.copy(bitmap.getConfig(), true);
 //        Bitmap finalBitmap = Bitmap.createBitmap(bitmap, 0, 0, this.getWidth(), this.getHeight());
 //        Canvas canvas = new Canvas(finalBitmap);
-//        drawEveryActions(canvas);
+//        drawFreeDrawAndShapeActions(canvas);
 //
 //        try {
 //            saveFile(finalBitmap, oldFilePath);
@@ -793,7 +808,7 @@ public class MarkableImageView extends View {
 
     public boolean isEdited() {
         boolean isEdited = true;
-        if (mActions.size() <= 0) {
+        if (mFreeDrawAndShapeActions.size() <= 0) {
             isEdited = false;
         } else {
             isEdited = true;

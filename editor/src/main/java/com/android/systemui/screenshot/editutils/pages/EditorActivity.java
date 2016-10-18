@@ -14,7 +14,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -172,7 +171,11 @@ public class EditorActivity extends Activity implements
     }
 
     private void initView() {
+        mRubberThicknessSeekBar.setProgressColor("#8e8e8e");
+        mMosaicThicknessSeekBar.setProgressColor("#8e8e8e");
         int initColor = Color.parseColor("#FF2968");
+        mThicknessSeekBar.setProgressColor(initColor);
+        mAlphaSeekBar.setProgressColor(initColor);
         mColorShowViewInPenceilGroup.setColor(initColor);
         mColorShowViewInShapeGroup.setColor(initColor);
         mColorShowViewInTextGroup.setColor(initColor);
