@@ -19,6 +19,9 @@ public class PathBean {
     private int mColor;
     private float mStrokeWidth;
     private int mAlpha;//0--255
+    /**
+     * 防止用户点一下这种down事件和up事件的空路径绘制
+     */
     private boolean mIsAvailable = false;
 
     public Path getPath() {

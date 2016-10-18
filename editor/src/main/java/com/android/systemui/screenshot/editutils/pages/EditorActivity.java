@@ -82,6 +82,8 @@ public class EditorActivity extends Activity implements
         mMarkableimageview = (MarkableImageView) findViewById(R.id.markableimageview);
         handleIntentDataIfExist();
         mIvCancel = (ImageView) findViewById(R.id.iv_cancel);
+        findViewById(R.id.iv_stepbackward).setOnClickListener(this);
+       findViewById(R.id.iv_stepforward).setOnClickListener(this);
         mPenceilAndRubberView = (PenceilAndRubberView) findViewById(R.id.penceil_and_rubber_view);
         mActionsChooseView = (ActionsChooseView) findViewById(R.id.actions_choose_view);
         mShapesChooseView = (ShapesChooseView) findViewById(R.id.shapes_choose_view);
@@ -391,6 +393,12 @@ public class EditorActivity extends Activity implements
                     break;
                 case R.id.iv_text_ok:
                     //TODO add text ok
+                    break;
+                case R.id.iv_stepbackward:
+                    mMarkableimageview.undo();
+                    break;
+                case R.id.iv_stepforward:
+                    mMarkableimageview.redo();
                     break;
             }
         }

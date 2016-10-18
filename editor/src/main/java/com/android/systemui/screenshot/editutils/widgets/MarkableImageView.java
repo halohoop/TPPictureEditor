@@ -72,8 +72,9 @@ public class MarkableImageView extends ImageView {
     private Shape.ShapeType mNowAddingWhatForShapeMode = Shape.ShapeType.CIRCLE;
 
     //drawing data list
+    private List<Action> mActions = new ArrayList<>();
     private List<Shape> mShapes = new ArrayList<>();
-    private List<PathBean> mFreeDrawsPath = new ArrayList<>();
+    private List<PathBean> mPathBeans = new ArrayList<>();
 
     private float mDisX;
     private float mDisY;
@@ -158,10 +159,12 @@ public class MarkableImageView extends ImageView {
                 pathBean.setColor(mFreePaint.getColor());
                 pathBean.setStrokeWidth(mFreePaint.getStrokeWidth());
                 pathBean.setAlpha(mFreePaint.getAlpha());
-                mFreeDrawsPath.add(pathBean);
+                mPathBeans.add(pathBean);
+                Action action1 = new Action(MODE_FREE_DRAW, pathBean);
+                mActions.add(action1);
                 break;
             case MotionEvent.ACTION_MOVE:
-                PathBean pathBeanMove = mFreeDrawsPath.get(mFreeDrawsPath.size() - 1);
+                PathBean pathBeanMove = mPathBeans.get(mPathBeans.size() - 1);
                 if (pathBeanMove != null) {
                     pathBeanMove.setIsAvailable(true);
                     Path path = pathBeanMove.getPath();
@@ -170,14 +173,15 @@ public class MarkableImageView extends ImageView {
                 invalidate();
                 break;
             case MotionEvent.ACTION_UP:
-                PathBean pathBeanUp = mFreeDrawsPath.get(mFreeDrawsPath.size() - 1);
+                PathBean pathBeanUp = mPathBeans.get(mPathBeans.size() - 1);
                 if (pathBeanUp != null) {
                     Path path = pathBeanUp.getPath();
                     path.quadTo(x, y, x, y);
                 }
                 boolean isAvailable = pathBeanUp.isIsAvailable();
                 if (!isAvailable) {
-                    mFreeDrawsPath.remove(pathBeanUp);
+                    mPathBeans.remove(pathBeanUp);
+                    mActions.remove(mActions.size() - 1);
                 }
                 invalidate();
                 break;
@@ -192,6 +196,9 @@ public class MarkableImageView extends ImageView {
                 mStartPointF.y = event.getY();
 
                 initShapeType();
+                Shape shape1 = mShapes.get(mShapes.size() - 1);
+                Action nowAddingWhichAction = new Action(MODE_SHAPE, shape1);
+                mActions.add(nowAddingWhichAction);
 
                 break;
             case MotionEvent.ACTION_MOVE:
@@ -209,7 +216,12 @@ public class MarkableImageView extends ImageView {
                 mEndPointF.y = event.getY();
 
                 saveFinalState();
-
+                Shape shape = mShapes.get(mShapes.size() - 1);
+                boolean isAvailable = shape.isAvailable();
+                if (!isAvailable) {
+                    mPathBeans.remove(shape);
+                    mActions.remove(mActions.size() - 1);
+                }
                 invalidate();
                 break;
         }
@@ -252,6 +264,8 @@ public class MarkableImageView extends ImageView {
     }
 
     private void updateShapeState() {
+        Shape shape = mShapes.get(mShapes.size() - 1);
+        shape.setIsAvailable(true);
         switch (mNowAddingWhatForShapeMode) {
             case LINE:
                 updateLinePointFs();
@@ -384,27 +398,94 @@ public class MarkableImageView extends ImageView {
     protected void onDraw(Canvas canvas) {
         //draw picture
         super.onDraw(canvas);
-        //draw our lovely free draws
-        drawFree(canvas);
-        //draw our lovely mShapes
-        drawShape(canvas);
+        drawEveryActions(canvas);
+    }
+
+    private void drawEveryActions(Canvas canvas) {
+        int currentFree = 0;
+        int currentShape = 0;
+        for (int i = 0; i < mActions.size(); i++) {
+            Action action = mActions.get(i);
+            switch (action.mThisActionBelongWhichMode) {
+                case MODE_FREE_DRAW:
+                    //draw our lovely free draws
+                    drawFree(canvas, currentFree++);
+                    break;
+                case MODE_SHAPE:
+                    //draw our lovely mShapes
+                    drawShape(canvas, currentShape++);
+                    break;
+            }
+        }
         //TODO draw our lovely text
         //TODO draw our lovely mosaic
     }
 
-    private void drawFree(Canvas canvas) {
-        for (int i = 0; i < mFreeDrawsPath.size(); i++) {
-            PathBean pathBean = mFreeDrawsPath.get(i);
+    public void undo() {
+        if (mActions.size() > 0) {
+            Action action = mActions.remove(mActions.size() - 1);
+            pushIntoUndoRedo(action);
+            if (action.mThisActionBelongWhichMode == MODE_FREE_DRAW) {
+                mPathBeans.remove(action.mPointer);
+            } else if (action.mThisActionBelongWhichMode == MODE_SHAPE) {
+                mShapes.remove(action.mPointer);
+            }
+            invalidate();
+        }
+    }
+
+    public void redo() {
+        Action action = popFromUndoRedo();
+        if (action != null) {
+            mActions.add(action);
+            if (action.mThisActionBelongWhichMode == MODE_FREE_DRAW) {
+                mPathBeans.add((PathBean) action.mPointer);
+            } else if (action.mThisActionBelongWhichMode == MODE_SHAPE) {
+                mShapes.add((Shape) action.mPointer);
+            }
+            invalidate();
+        }
+    }
+
+    private List<Action> mUndoRedoPools = new ArrayList<>();
+    private int mUndoRedoPoolMaxSize = 20;
+
+    private int pushIntoUndoRedo(Action action) {
+        if (mUndoRedoPools.size() >= mUndoRedoPoolMaxSize) {
+            mUndoRedoPools.remove(0);
+        }
+        mUndoRedoPools.add(action);
+        return mUndoRedoPools.size();
+    }
+
+    private Action popFromUndoRedo() {
+        if (mUndoRedoPools.size() > 0) {
+            Action action = mUndoRedoPools.remove(mUndoRedoPools.size() - 1);
+            return action;
+        } else {
+            return null;
+        }
+    }
+
+    private void drawFree(Canvas canvas, int currentDrawIndex) {
+        try {
+            PathBean pathBean = mPathBeans.get(currentDrawIndex);
             Path path = pathBean.getPath();
             mFreePaint.setColor(pathBean.getColor());
             mFreePaint.setStrokeWidth(pathBean.getStrokeWidth());
             canvas.drawPath(path, mFreePaint);
+        } catch (IndexOutOfBoundsException ex) {
+            if (mAllowLog) {
+                Log.i(TAG, "drawFree: IndexOutOfBoundsException appear");
+            }
         }
     }
 
-    private void drawShape(Canvas canvas) {
-        for (int i = 0; i < mShapes.size(); i++) {
-            Shape shape = mShapes.get(i);
+    private boolean mAllowLog = true;
+
+    private void drawShape(Canvas canvas, int currentDrawIndex) {
+        try {
+            Shape shape = mShapes.get(currentDrawIndex);
             mShapePaint.setColor(shape.getColor());
             PointF[] pointFs = shape.getPoints();
             switch (shape.getShapeType()) {
@@ -455,6 +536,10 @@ public class MarkableImageView extends ImageView {
                             radiusCornor, radiusCornor * 2, mShapePaint);
                     mShapePaint.setStyle(Paint.Style.FILL);
                     break;
+            }
+        } catch (IndexOutOfBoundsException ex) {
+            if (mAllowLog) {
+                Log.i(TAG, "drawShape: IndexOutOfBoundsException appear");
             }
         }
     }
@@ -542,7 +627,7 @@ public class MarkableImageView extends ImageView {
 //        Bitmap finalBitmap = bitmap.copy(bitmap.getConfig(), true);
         Bitmap finalBitmap = Bitmap.createBitmap(bitmap, 0, 0, this.getWidth(), this.getHeight());
         Canvas canvas = new Canvas(finalBitmap);
-        drawShape(canvas);
+        drawEveryActions(canvas);
 
         try {
             saveFile(finalBitmap, oldFilePath);
@@ -587,12 +672,22 @@ public class MarkableImageView extends ImageView {
 
     public boolean isEdited() {
         boolean isEdited = true;
-        if (mFreeDrawsPath.size() <= 0 && mShapes.size() <= 0) {
+        if (mActions.size() <= 0) {
             isEdited = false;
         } else {
             isEdited = true;
         }
         //TODO else
         return isEdited;
+    }
+
+    private class Action {
+        public int mThisActionBelongWhichMode = -1;
+        public Object mPointer;//指向Shape or PathBean or others
+
+        public Action(int modeFreeDraw, Object obj) {
+            this.mThisActionBelongWhichMode = modeFreeDraw;
+            this.mPointer = obj;
+        }
     }
 }

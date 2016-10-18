@@ -20,7 +20,7 @@ import java.util.Arrays;
 /**
  * @hide
  */
-public class Shape {
+public class Shape extends PathBean {
 
     protected float mRadius = 0;//just for circle
 
@@ -33,6 +33,10 @@ public class Shape {
     protected String mText;
     protected static final int NORMAL_TEXT_SZIE = 12;
     protected int mTextSize = NORMAL_TEXT_SZIE;
+    /**
+     * 防止用户点一下这种down事件和up事件的空路径绘制
+     */
+    private boolean mIsAvailable = false;
 
     public Shape(ShapeType shapeType) {
         switch (shapeType) {
@@ -131,6 +135,14 @@ public class Shape {
 
     public void setRadius(float mRadius) {
         this.mRadius = mRadius;
+    }
+
+    public boolean isAvailable() {
+        return mIsAvailable;
+    }
+
+    public void setIsAvailable(boolean isAvailable) {
+        this.mIsAvailable = isAvailable;
     }
 
     @Override
