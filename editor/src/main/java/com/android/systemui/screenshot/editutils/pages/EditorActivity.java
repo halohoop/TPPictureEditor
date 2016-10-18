@@ -180,6 +180,7 @@ public class EditorActivity extends Activity implements
         mColorShowViewInShapeGroup.setColor(initColor);
         mColorShowViewInTextGroup.setColor(initColor);
         mMarkableimageview.setNowAddingShapeType(Shape.ShapeType.LINE);
+        mMarkableimageview.setInWhichMode(MarkableImageView.MODE_SHAPE);
         mMarkableimageview.enterEditMode();
         mMarkableimageview.changePaintColor(initColor);
     }
