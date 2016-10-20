@@ -71,6 +71,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:background="#1C1C1C"
+                    android:visibility="gone"
                     android:gravity="center_vertical"
                     android:orientation="horizontal">
 
@@ -158,8 +159,7 @@
                     android:layout_height="match_parent"
                     android:background="#1C1C1C"
                     android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    android:visibility="gone">
+                    android:orientation="horizontal">
 
                     <com.android.systemui.screenshot.editutils.widgets.ShapesChooseView
                         android:id="@+id/shapes_choose_view"
@@ -218,7 +218,6 @@
             android:layout_height="445dp"
             android:layout_above="@id/actions_tools_container"
             android:layout_below="@id/operation_container"
-            android:background="#00f"
             android:scaleType="fitCenter"/>
     </RelativeLayout>
 
@@ -231,6 +230,7 @@
         app:ResPenceilOff="@mipmap/penceiloff"
         app:ResPenceilOn="@mipmap/penceilon"
         app:ResRubberOff="@mipmap/rubberoff"
+        android:visibility="gone"
         app:ResRubberOn="@mipmap/rubberon"></com.android.systemui.screenshot.editutils.widgets.PenceilAndRubberView>
 
     <LinearLayout
@@ -263,4 +263,14 @@
             android:padding="10dp"
             android:src="@drawable/save"/>
     </LinearLayout>
+    <FrameLayout
+        android:id="@+id/progress_container"
+        android:background="#338e8e8e"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <ProgressBar
+            android:layout_gravity="center"
+            android:layout_width="50dp"
+            android:layout_height="50dp"/>
+    </FrameLayout>
 </FrameLayout>

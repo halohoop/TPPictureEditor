@@ -135,7 +135,6 @@ public class MarkableImageView extends View {
     private void initFreePaint() {
         mFreePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mFreePaint.setDither(true);
-        mFreePaint.setStrokeJoin(Paint.Join.ROUND);
         mFreePaint.setColor(Color.BLACK);
         mFreePaint.setStrokeCap(Paint.Cap.ROUND);
         mFreePaint.setStyle(Paint.Style.STROKE);
@@ -784,48 +783,11 @@ public class MarkableImageView extends View {
         mIsEditing = false;
     }
 
-    public void saveImageToFile(String oldFilePath) {
-//        BitmapDrawable drawable = (BitmapDrawable) getDrawable();
-//        Bitmap bitmap = drawable.getBitmap();
-//
-////        Bitmap finalBitmap = bitmap.copy(bitmap.getConfig(), true);
-//        Bitmap finalBitmap = Bitmap.createBitmap(bitmap, 0, 0, this.getWidth(), this.getHeight());
-//        Canvas canvas = new Canvas(finalBitmap);
-//        drawFreeDrawActions(canvas);
-//
-//        try {
-//            saveFile(finalBitmap, oldFilePath);
-//        } catch (IOException e) {
-//            Log.e("huanghaiqi", "huanghaiqi 保存文件失败!");
-//            e.printStackTrace();
-//        } finally {
-////            if (finalBitmap != null && !finalBitmap.isRecycled()) {
-////                finalBitmap.recycle();
-////            }
-//        }
-    }
-
     /**
-     * 保存文件
-     *
-     * @param bm
-     * @param oldFilePath
-     * @throws IOException
+     * @return 0->n,bitmaps from bottom to top
      */
-    private void saveFile(Bitmap bm, String oldFilePath) throws IOException {
-        File oldFile = new File(oldFilePath);
-        File dir = oldFile.getParentFile();
-        if (!dir.exists()) {
-            dir.mkdirs();
-        }
-        String fileName = getFileNameFromOldName(oldFile.getName());
-        File myCaptureFile = new File(dir, fileName);
-        BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(myCaptureFile));
-        bm.compress(Bitmap.CompressFormat.JPEG, 100, bos);
-        bos.flush();
-        bos.close();
-        Toast.makeText(getContext(), "Save file to " + myCaptureFile.getAbsolutePath(),
-                Toast.LENGTH_SHORT).show();
+    public Bitmap[] getFinalImage() {
+        return null;
     }
 
     private String getFileNameFromOldName(String oldName) {

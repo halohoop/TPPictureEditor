@@ -3,4 +3,11 @@
     <string name="edited_exist_or_not">"您有未保存的更改，是否退出？"</string>
     <string name="editor_dialog_exist">"退出"</string>
     <string name="editor_dialog_cancel">"取消"</string>
+    <string name="screenshot_delete_action">"删除"</string>
+    <string name="screenshot_delete_confirmation">Screenshot deleted.</string>
+    <string name="screenshot_saving_ticker" msgid="7403652894056693515">"正在保存屏幕截图..."</string>
+    <string name="screenshot_saving_title" msgid="8242282144535555697">"正在保存屏幕截图..."</string>
+    <string name="screenshot_saving_text" msgid="2419718443411738818">"正在保存屏幕截图。"</string>
+    <string name="screenshot_saved_title" msgid="6461865960961414961">"已抓取屏幕截图。"</string>
+    <string name="screenshot_saved_text" msgid="1152839647677558815">"触摸可查看您的屏幕截图。"</string>
 </resources>

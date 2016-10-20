@@ -27,7 +27,7 @@ public class ActionsChooseView extends FrameLayout implements View.OnClickListen
     private ImageView mIvShape;
     private ImageView mIvWord;
     private ImageView mIvPen;
-    private int mIndex = 0;
+    private int mIndex = 2;//default should be 0 ,for now version 2
 
     public ActionsChooseView(Context context) {
         this(context, null);
